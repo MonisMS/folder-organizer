@@ -1,6 +1,7 @@
 import Fastify from "fastify"
 import { scanInfo } from "./services/scannerInfo.js"
 import { fileRoutes } from "./routes/filesRoutes.js";
+import { historyRoutes } from "./routes/historyRoutes.js";
 
 interface ScanQuery {
   path: string;
@@ -57,6 +58,7 @@ fastify.get<{Querystring: ScanQuery}>('/scan',async(request,reply) =>{
   return reply.send(result)
 })
   await fastify.register(fileRoutes, { prefix: '/api/files' });
+  await fastify.register(historyRoutes, { prefix: '/api/history' });
   
  fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date() };

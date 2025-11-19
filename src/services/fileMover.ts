@@ -3,6 +3,7 @@ import { access, mkdir,rename } from "fs/promises";
 import type { FileInfo } from "../types/type.js";
 import path from "path";
 import { logger } from "../lib/logger.js";
+import { fileController } from "../controller/fileController.js";
 
 
 export interface MoveResult{
@@ -10,6 +11,7 @@ export interface MoveResult{
     originalPath:string;
     newPath?:string;
     error?:string;
+    dbFileId?:number;
 }
 
 export async function fileExists(filePath:string):Promise<boolean>{
@@ -49,6 +51,7 @@ export async function moveFile(
     organizedRoot:string
 ): Promise<MoveResult>{
 try {
+    const originalPath = file.path;
     const targetPath = path.join(organizedRoot,targetFolder,file.name);
 
     const targetDir =path.dirname(targetPath);
@@ -64,11 +67,29 @@ try {
     logger.info(`Moving file from ${file.path} to ${finalPath}`);
     await rename(file.path,finalPath);
 
+    // Save to database
+    const dbFile = await fileController.createFile({
+        name: file.name,
+        originalPath: originalPath,
+        currentPath: finalPath,
+        size: file.size,
+        extension: file.extension,
+        category: targetFolder,
+        hash: null, // Part 4
+    });
+
+    // Log the operation
+    await fileController.logOperation(
+        'moved',
+        dbFile.id,
+        JSON.stringify({ category: targetFolder, from: originalPath, to: finalPath })
+    );
 
     return {
         success:true,
         originalPath:file.path,
-        newPath:finalPath
+        newPath:finalPath,
+        dbFileId: dbFile.id
     }
 } catch (error) {
     logger.error({ error, file: file.name }, 'Failed to move file');
