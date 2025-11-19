@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon --exec tsx src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [],
   "author": "",
@@ -14,14 +17,19 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.7",
     "pino-pretty": "^13.1.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
     "fastify": "^5.6.2",
     "nodemon": "^3.1.11",
+    "pg": "^8.16.3",
     "pino": "^10.1.0"
   }
 }
