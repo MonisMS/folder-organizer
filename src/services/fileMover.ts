@@ -26,8 +26,14 @@ export async function fileExists(filePath:string):Promise<boolean>{
 }
 
 export async function ensureDirectoryExists(dirPath:string):Promise<string>{
-    await mkdir(dirPath,{recursive:true});
-    return dirPath;
+    try {
+        await mkdir(dirPath, { recursive: true });
+        logger.info(`Directory ensured: ${dirPath}`);
+        return dirPath;
+    } catch (error) {
+        logger.error({ error, dirPath }, 'Failed to create directory');
+        throw error;
+    }
 }
 
 async function generateUniquePath(filePath:string):Promise<string> {
@@ -56,7 +62,10 @@ try {
     const originalPath = file.path;
     const targetPath = path.join(organizedRoot,targetCategory,file.name);
 
-    const targetDir =path.dirname(targetPath);
+    const targetDir = path.dirname(targetPath);
+    
+    // Ensure target directory exists
+    logger.info(`Ensuring directory exists: ${targetDir}`);
     await ensureDirectoryExists(targetDir);
 
     let finalPath = targetPath;
@@ -66,13 +75,14 @@ try {
         finalPath = await generateUniquePath(targetPath);
     }
 
+    // Generate hash before moving
     const fileHash = await generateFileHash(file.path);
-    logger.info(`File hash : ${fileHash}`)
+    logger.info(`File hash: ${fileHash}`);
+    
+    // Move the file
     logger.info(`Moving file from ${file.path} to ${finalPath}`);
-    await rename(file.path,finalPath);
-
-    logger.info(`Moving file from ${file.path} to ${finalPath}`);
-    await rename(file.path,finalPath);
+    await rename(file.path, finalPath);
+    logger.info(`Successfully moved file to ${finalPath}`);
 
     
     const dbFile = await fileController.createFile({

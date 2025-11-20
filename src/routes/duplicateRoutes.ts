@@ -6,7 +6,7 @@ import { findDuplicates } from "../services/hashService.js";
 
 export async function duplicateRoutes(fastify: FastifyInstance) {
   // Get all duplicates from database
-  fastify.get('/duplicates', async (request, reply) => {
+  fastify.get('/', async (request, reply) => {
     try {
       const duplicates = await fileController.getAllDuplicates();
       return {
