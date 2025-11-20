@@ -26,6 +26,7 @@ export async function fileExists(filePath:string):Promise<boolean>{
 
 export async function ensureDirectoryExists(dirPath:string):Promise<string>{
     await mkdir(dirPath,{recursive:true});
+    return dirPath;
 }
 
 async function generateUniquePath(filePath:string):Promise<string> {
@@ -47,12 +48,12 @@ return uniquePath;
 
 export async function moveFile(
     file:FileInfo,
-    targetFolder:string,
+    targetCategory:string,
     organizedRoot:string
 ): Promise<MoveResult>{
 try {
     const originalPath = file.path;
-    const targetPath = path.join(organizedRoot,targetFolder,file.name);
+    const targetPath = path.join(organizedRoot,targetCategory,file.name);
 
     const targetDir =path.dirname(targetPath);
     await ensureDirectoryExists(targetDir);
@@ -69,27 +70,32 @@ try {
 
     // Save to database
     const dbFile = await fileController.createFile({
-        name: file.name,
-        originalPath: originalPath,
-        currentPath: finalPath,
-        size: file.size,
-        extension: file.extension,
-        category: targetFolder,
-        hash: null, // Part 4
-    });
+  name: file.name,
+  originalPath,
+  currentPath: finalPath,
+  size: file.size,
+  extension: file.extension,
+  category: targetCategory,
+  hash: null,
+  organizedAt: new Date(),
+});
 
     // Log the operation
     await fileController.logOperation(
-        'moved',
-        dbFile.id,
-        JSON.stringify({ category: targetFolder, from: originalPath, to: finalPath })
-    );
+  'moved',
+  dbFile!.id,
+  JSON.stringify({
+    category: targetCategory,
+    originalPath,
+    currentPath: finalPath,
+  })
+);
 
     return {
         success:true,
         originalPath:file.path,
         newPath:finalPath,
-        dbFileId: dbFile.id
+        dbFileId: dbFile!.id
     }
 } catch (error) {
     logger.error({ error, file: file.name }, 'Failed to move file');
