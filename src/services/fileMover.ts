@@ -4,6 +4,7 @@ import type { FileInfo } from "../types/type.js";
 import path from "path";
 import { logger } from "../lib/logger.js";
 import { fileController } from "../controller/fileController.js";
+import { generateFileHash } from "./hashService.js";
 
 
 export interface MoveResult{
@@ -65,10 +66,15 @@ try {
         finalPath = await generateUniquePath(targetPath);
     }
 
+    const fileHash = await generateFileHash(file.path);
+    logger.info(`File hash : ${fileHash}`)
     logger.info(`Moving file from ${file.path} to ${finalPath}`);
     await rename(file.path,finalPath);
 
-    // Save to database
+    logger.info(`Moving file from ${file.path} to ${finalPath}`);
+    await rename(file.path,finalPath);
+
+    
     const dbFile = await fileController.createFile({
   name: file.name,
   originalPath,
@@ -76,7 +82,7 @@ try {
   size: file.size,
   extension: file.extension,
   category: targetCategory,
-  hash: null,
+  hash: fileHash,
   organizedAt: new Date(),
 });
 
@@ -88,6 +94,7 @@ try {
     category: targetCategory,
     originalPath,
     currentPath: finalPath,
+    hash: fileHash
   })
 );
 

@@ -1,0 +1,1 @@
+CREATE INDEX "hash_idx" ON "files" USING btree ("hash");

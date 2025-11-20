@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { files, logs, type NewFile } from "../db/schema.js";
 
@@ -51,6 +51,44 @@ export class FileController {
   .limit(limit);
      return recentLogs;
   }
+
+
+
+  async findDuplicatesByHash(hash: string) {
+  const duplicates = await db
+    .select()
+    .from(files)
+    .where(eq(files.hash, hash));
+  
+  return duplicates;
+}
+
+async getAllDuplicates() {
+  // Find all hashes that appear more than once
+  const result = await db
+    .select({
+      hash: files.hash,
+      count: sql<number>`count(*)`.as('count'),
+    })
+    .from(files)
+    .where(isNotNull(files.hash))
+    .groupBy(files.hash)
+    .having(sql`count(*) > 1`);
+
+  // Get full file details for each duplicate hash
+  const duplicateGroups = [];
+  
+  for (const { hash } of result) {
+    const fileList = await this.findDuplicatesByHash(hash!);
+    duplicateGroups.push({
+      hash,
+      files: fileList,
+      count: fileList.length,
+    });
+  }
+
+  return duplicateGroups;
+}
 }
 
 export const fileController = new FileController();

@@ -1,5 +1,5 @@
 
-import { integer, pgTable, text, timestamp, serial } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, serial, index } from "drizzle-orm/pg-core";
 
 // Files table - tracks all scanned and organized files
 export const files = pgTable("files", {
@@ -14,7 +14,10 @@ export const files = pgTable("files", {
     scannedAt: timestamp('scanned_at').defaultNow().notNull(),
     organizedAt: timestamp('organized_at'),         // When it was moved/organized
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+    // Index for fast duplicate lookups by hash
+    hashIdx: index('hash_idx').on(table.hash),
+}));
 
 // Logs table - tracks all file operations for history and undo
 export const logs = pgTable("logs", {
