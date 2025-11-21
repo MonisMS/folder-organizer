@@ -3,6 +3,7 @@ import { scanInfo } from "./services/scannerInfo.js"
 import { fileRoutes } from "./routes/filesRoutes.js";
 import { historyRoutes } from "./routes/historyRoutes.js";
 import { duplicateRoutes } from "./routes/duplicateRoutes.js";
+import { jobRoutes } from "./routes/jobRoutes.js";
 
 interface ScanQuery {
   path: string;
@@ -61,6 +62,7 @@ fastify.get<{Querystring: ScanQuery}>('/scan',async(request,reply) =>{
   await fastify.register(fileRoutes, { prefix: '/api/files' });
   await fastify.register(historyRoutes, { prefix: '/api/history' });
   await fastify.register(duplicateRoutes, { prefix: '/api/duplicates' });
+  await fastify.register(jobRoutes, { prefix: '/api/jobs' });
  fastify.get('/health', async () => {
     return { status: 'ok', timestamp: new Date() };
   });

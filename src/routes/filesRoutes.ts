@@ -4,10 +4,10 @@ import { moveFile } from '../services/fileMover.js';
 import { config } from '../config/index.js';
 import type { FileInfo } from '../types/type.js';
 import { scanInfo } from '../services/scannerInfo.js';
+import { logger } from '../lib/logger.js';
+import { organizeQueue } from '../queues/fileQueue.js';
 
-// ============================================
-// Type Definitions
-// ============================================
+
 
 interface ClassifyQuery {
   path: string;
@@ -79,115 +79,47 @@ export async function fileRoutes(fastify: FastifyInstance) {
 
  
   
-  fastify.post<{ Body: OrganizeRequest }>('/organize', async (request, reply) => {
-    const { sourcePath, dryRun = false } = request.body;
-    
-    // Validate input
-    if (!sourcePath) {
-      return reply.status(400).send({ 
-        error: 'sourcePath is required in request body' 
-      });
-    }
-    
+  fastify.post<{
+    Body: { sourcePath: string; targetPath: string };
+  }>('/organize', async (request, reply) => {
     try {
-      // Step 1: Scan folder
-      fastify.log.info({ sourcePath, dryRun }, 'Starting file organization');
-      const scanResult = await scanInfo(sourcePath);
-      
-      // Step 2: Classify files
-      const categorized = classifyFiles(scanResult.files);
-      
-      // Step 3: Initialize tracking arrays
-      const movedFiles: string[] = [];
-      const errors: string[] = [];
-      const results: { category: string; files: string[] }[] = [];
-      
-      // Step 4: Process each category
-      for (const [category, files] of categorized) {
-        const categoryFiles: string[] = [];
-        
-        fastify.log.info(
-          { category, fileCount: files.length }, 
-          `Processing category: ${category}`
-        );
-        
-        // Step 5: Move each file in this category
-        for (const file of files) {
-          try {
-            if (!dryRun) {
-              // Actually move the file
-              const moveResult = await moveFile(
-                file, 
-                category, 
-                config.organizedRoot
-              );
-              
-              if (moveResult.success) {
-                movedFiles.push(file.name);
-                categoryFiles.push(file.name);
-                
-                fastify.log.info(
-                  { file: file.name, to: moveResult.newPath },
-                  'File moved successfully'
-                );
-              } else {
-                const errorMsg = `Failed to move ${file.name}: ${moveResult.error}`;
-                errors.push(errorMsg);
-                
-                fastify.log.warn({ file: file.name, error: moveResult.error }, errorMsg);
-              }
-            } else {
-              // Dry run - just track what would be moved
-              categoryFiles.push(file.name);
-            }
-          } catch (error) {
-            const errorMsg = error instanceof Error 
-              ? error.message 
-              : 'Unknown error';
-            
-            errors.push(`Error moving ${file.name}: ${errorMsg}`);
-            
-            fastify.log.error(
-              { error, file: file.name },
-              'Failed to move file'
-            );
-          }
-        }
-        
-        // Add category results
-        results.push({
-          category,
-          files: categoryFiles,
+      const { sourcePath, targetPath } = request.body;
+
+      if (!sourcePath || !targetPath) {
+        return reply.status(400).send({
+          success: false,
+          error: 'sourcePath and targetPath are required',
         });
       }
-      
-      // Step 6: Build and return response
-      const response: OrganizeResponse = {
-        totalFiles: scanResult.totalFiles,
-        movedFiles: movedFiles.length,
-        failedFiles: errors.length,
-        results,
-        errors,
+
+      // Add job to queue instead of processing directly
+      const job = await organizeQueue.add(
+        'organize-files',
+        { sourcePath, targetPath },
+        {
+          // Job-specific options (override defaults)
+          priority: 1, // Higher priority = processed first
+        }
+      );
+
+      logger.info({ jobId: job.id, sourcePath, targetPath }, 'Organize job created');
+
+      // Return job ID immediately
+      return {
+        success: true,
+        message: 'File organization job created',
+        jobId: job.id,
+        status: 'queued',
+        // Poll this endpoint to check status:
+        statusUrl: `/api/jobs/${job.id}`,
       };
       
-      fastify.log.info(
-        { 
-          totalFiles: response.totalFiles,
-          movedFiles: response.movedFiles,
-          failedFiles: response.failedFiles 
-        },
-        'File organization completed'
-      );
-      
-      return response;
-      
     } catch (error) {
-      fastify.log.error({ error, sourcePath }, 'Failed to organize files');
-      
-      return reply.status(500).send({ 
-        error: 'Failed to organize files',
-        message: error instanceof Error ? error.message : 'Unknown error'
+      logger.error({ error }, 'Failed to create organize job');
+      return reply.status(500).send({
+        success: false,
+        error: 'Failed to create job',
       });
     }
-  });
+  })
 }

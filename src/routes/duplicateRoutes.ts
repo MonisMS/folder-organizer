@@ -3,6 +3,7 @@ import { fileController } from "../controller/fileController.js";
 import { logger } from "../lib/logger.js";
 import { scanInfo } from "../services/scannerInfo.js";
 import { findDuplicates } from "../services/hashService.js";
+import { duplicateCheckQueue } from "../queues/fileQueue.js";
 
 export async function duplicateRoutes(fastify: FastifyInstance) {
   // Get all duplicates from database
@@ -23,7 +24,7 @@ export async function duplicateRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // Scan directory for duplicates
+  // Scan for duplicates (now using queue!)
   fastify.post<{
     Body: { sourcePath: string };
   }>('/scan', async (request, reply) => {
@@ -37,45 +38,27 @@ export async function duplicateRoutes(fastify: FastifyInstance) {
         });
       }
 
-      // Scan directory
-      logger.info({ sourcePath }, 'Scanning for duplicates');
-      const scanResult = await scanInfo(sourcePath);
-
-      // Find duplicates
-      const duplicates = await findDuplicates(
-        scanResult.files.map(f => ({ path: f.path, name: f.name }))
+      // Add job to queue
+      const job = await duplicateCheckQueue.add(
+        'scan-duplicates',
+        { sourcePath }
       );
 
-      // Format response
-      const duplicateGroups = Array.from(duplicates.entries()).map(([hash, fileList]) => ({
-        hash,
-        count: fileList.length,
-        totalSize: fileList.reduce((sum, f) => {
-          const file = scanResult.files.find(x => x.path === f.path);
-          return sum + (file?.size || 0);
-        }, 0),
-        files: fileList,
-      }));
-
-      const totalDuplicates = duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0);
-      const wastedSpace = duplicateGroups.reduce(
-        (sum, g) => sum + (g.totalSize * (g.count - 1)), 
-        0
-      );
+      logger.info({ jobId: job.id, sourcePath }, 'Duplicate scan job created');
 
       return {
         success: true,
-        scannedFiles: scanResult.files.length,
-        duplicateGroups: duplicateGroups.length,
-        totalDuplicates,
-        wastedSpace,
-        duplicates: duplicateGroups,
+        message: 'Duplicate detection job created',
+        jobId: job.id,
+        status: 'queued',
+        statusUrl: `/api/jobs/${job.id}`,
       };
+      
     } catch (error) {
-      logger.error({ error }, 'Error scanning for duplicates');
+      logger.error({ error }, 'Failed to create duplicate scan job');
       return reply.status(500).send({
         success: false,
-        error: 'Failed to scan for duplicates',
+        error: 'Failed to create job',
       });
     }
   });
