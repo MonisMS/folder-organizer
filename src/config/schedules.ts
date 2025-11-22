@@ -2,7 +2,7 @@ export const schedules = {
 //everyday at 2 am 
 autoOrganizeDownloads :{
     pattern: '0 2 * * *',
-    enabled: false, // Disabled - update path first
+    enabled: true, // Disabled - update path first
     timezone: 'Asia/Kolkata',
     config:{
         sourcePath: 'C:\\Users\\Monis\\Downloads', // Update to your actual path
