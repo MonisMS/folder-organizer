@@ -8,7 +8,9 @@ export const config: AppConfig = {
     organizedRoot: process.env.ORGANIZED_ROOT || path.join(
         process.cwd(), 'organized_files'
     ),
-    sourceFolder: process.env.SOURCE_FOLDER || ' ',
+    // sourceFolder is optional - use empty string if not set
+    // File operations should validate paths before use
+    sourceFolder: process.env.SOURCE_FOLDER || '',
     onlyOrganizeRootFiles: true,
     ignoredFolders: [
         'node_modules',
