@@ -1,0 +1,125 @@
+import type { FastifyInstance } from 'fastify';
+import { classifyFiles } from '../services/fileClassifier.js';
+import { moveFile } from '../services/fileMover.js';
+import { config } from '../config/index.js';
+import type { FileInfo } from '@file-manager/shared';
+import { scanInfo } from '../services/scannerInfo.js';
+import { logger } from '../lib/logger.js';
+import { organizeQueue } from '../queues/fileQueue.js';
+
+
+
+interface ClassifyQuery {
+  path: string;
+}
+
+interface OrganizeRequest {
+  sourcePath: string;
+  dryRun?: boolean;
+}
+
+interface OrganizeResponse {
+  totalFiles: number;
+  movedFiles: number;
+  failedFiles: number;
+  results: {
+    category: string;
+    files: string[];
+  }[];
+  errors: string[];
+}
+
+
+
+export async function fileRoutes(fastify: FastifyInstance) {
+  
+
+  
+  fastify.get<{ Querystring: ClassifyQuery }>('/classify', async (request, reply) => {
+    const { path } = request.query;
+    
+    // Validate input
+    if (!path) {
+      return reply.status(400).send({ 
+        error: 'path query parameter is required' 
+      });
+    }
+    
+    try {
+      
+      fastify.log.info({ path }, 'Scanning folder for classification');
+      const scanResult = await scanInfo(path);
+      
+   
+      const categorized = classifyFiles(scanResult.files);
+      
+      
+      const categories: Record<string, FileInfo[]> = {};
+      
+      for (const [category, files] of categorized) {
+        categories[category] = files;
+      }
+      
+      return {
+        totalFiles: scanResult.totalFiles,
+        scannedPath: scanResult.scannedPath,
+        scannedAt: scanResult.scannedAt,
+        categories,
+      };
+      
+    } catch (error) {
+      fastify.log.error({ error, path }, 'Failed to classify files');
+      
+      return reply.status(500).send({ 
+        error: 'Failed to classify files',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+ 
+  
+  fastify.post<{
+    Body: { sourcePath: string; targetPath: string };
+  }>('/organize', async (request, reply) => {
+    try {
+      const { sourcePath, targetPath } = request.body;
+
+      if (!sourcePath || !targetPath) {
+        return reply.status(400).send({
+          success: false,
+          error: 'sourcePath and targetPath are required',
+        });
+      }
+
+      // Add job to queue instead of processing directly
+      const job = await organizeQueue.add(
+        'organize-files',
+        { sourcePath, targetPath },
+        {
+          // Job-specific options (override defaults)
+          priority: 1, // Higher priority = processed first
+        }
+      );
+
+      logger.info({ jobId: job.id, sourcePath, targetPath }, 'Organize job created');
+
+      // Return job ID immediately
+      return {
+        success: true,
+        message: 'File organization job created',
+        jobId: job.id,
+        status: 'queued',
+        // Poll this endpoint to check status:
+        statusUrl: `/api/jobs/${job.id}`,
+      };
+      
+    } catch (error) {
+      logger.error({ error }, 'Failed to create organize job');
+      return reply.status(500).send({
+        success: false,
+        error: 'Failed to create job',
+      });
+    }
+  })
+}

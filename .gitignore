@@ -1,41 +1,115 @@
+# ============================================
+# Monorepo Root .gitignore
+# ============================================
+
 # Dependencies
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
-# Build outputs
+# ============================================
+# Build Outputs (Monorepo Structure)
+# ============================================
+
+# Backend build output
+apps/backend/dist/
+
+# Frontend build outputs (Next.js)
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/build/
+
+# Shared package build output
+packages/shared/dist/
+
+# General build outputs
 dist/
 build/
 *.log
 
-# Environment variables
+# ============================================
+# Environment Variables
+# ============================================
+
 .env
 .env.local
 .env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# IDE
+# ============================================
+# IDE & Editor Files
+# ============================================
+
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ============================================
+# OS Files
+# ============================================
+
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
+# ============================================
 # Testing
+# ============================================
+
 coverage/
 .nyc_output/
+*.lcov
+.jest/
 
-# Temporary files
+# ============================================
+# Temporary Files
+# ============================================
+
 *.tmp
 *.temp
 .cache/
+.turbo/
+.vercel/
 
-# Learning roadmap
+# ============================================
+# TypeScript
+# ============================================
+
+*.tsbuildinfo
+
+# ============================================
+# Next.js Specific (Frontend)
+# ============================================
+
+# Next.js
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/.vercel
+
+# ============================================
+# Project Specific
+# ============================================
+
+# Learning roadmap (if you want to ignore it)
 LEARNING_ROADMAP.md
-parts.md
+FRONTEND_SETUP.md
+MONOREPO_STRUCTURE.md
+FRONTEND_QUICK_START.md
+# parts.md
+
