@@ -46,7 +46,7 @@ export function FileList({ files }: FileListProps) {
               </TableCell>
               <TableCell>{formatFileSize(file.size)}</TableCell>
               <TableCell className="text-muted-foreground">
-                {formatDate(file.modifiedAt)}
+                {formatDate(file.modifiedAt || null)}
               </TableCell>
             </TableRow>
           ))}

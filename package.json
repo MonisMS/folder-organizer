@@ -15,7 +15,10 @@
         "build:backend": "npm run build --workspace=apps/backend",
         "build:frontend": "npm run build --workspace=apps/frontend",
         "build:shared": "npm run build --workspace=packages/shared",
-        "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend"
+        "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
+        "redis:start": "docker-compose up -d redis",
+        "redis:stop": "docker-compose stop redis",
+        "redis:logs": "docker-compose logs -f redis"
     },
     "devDependencies": {
         "concurrently": "^9.2.1",

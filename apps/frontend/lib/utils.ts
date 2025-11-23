@@ -13,14 +13,34 @@ export function formatFileSize(size: number): string {
 }
 
 // Format date
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) {
+    return 'N/A';
+  }
+  
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+  
   return format(dateObj, 'PPp'); // e.g., "Jan 1, 2024 at 12:00 PM"
 }
 
 // Format relative time
-export function formatRelativeTime(date: Date | string): string {
+export function formatRelativeTime(date: Date | string | null | undefined): string {
+  if (!date) {
+    return 'N/A';
+  }
+  
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check if date is valid
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+  
   return formatDistanceToNow(dateObj, { addSuffix: true }); // e.g., "2 hours ago"
 }
 

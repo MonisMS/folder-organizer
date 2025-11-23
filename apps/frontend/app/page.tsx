@@ -1,62 +1,35 @@
-'use client';
+import { Hero } from '@/components/landing/Hero';
+import { Features } from '@/components/landing/Features';
+import { CTA } from '@/components/landing/CTA';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useScanFiles } from '@/lib/hooks/useFiles';
-import { FileList } from '@/components/files/FileList';
-
-export default function HomePage() {
-  const [path, setPath] = useState('');
-  const [scanPath, setScanPath] = useState('');
-
-  const { data, isLoading, error } = useScanFiles(scanPath);
-
-  const handleScan = () => {
-    if (path.trim()) {
-      setScanPath(path);
-    }
-  };
-
+export default function LandingPage() {
   return (
-    <div className="container mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>File Scanner</CardTitle>
-          <CardDescription>Scan a directory to see all files</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter directory path (e.g., C:\Users\YourName\Documents)"
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleScan()}
-            />
-            <Button onClick={handleScan} disabled={!path.trim()}>
-              Scan
-            </Button>
-          </div>
-
-          {error && (
-            <div className="mt-4 text-red-500">
-              Error: {error instanceof Error ? error.message : 'Unknown error'}
-            </div>
-          )}
-
-          {isLoading && <div className="mt-4">Scanning...</div>}
-
-          {data && (
-            <div className="mt-4">
+    <main className="min-h-screen">
+      <Hero />
+      <Features />
+      <CTA />
+      
+      {/* Footer */}
+      <footer className="border-t bg-muted/50 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div className="text-center md:text-left">
               <p className="text-sm text-muted-foreground">
-                Found {data.totalFiles} files in {data.scannedPath}
+                © 2024 File Manager. Built with Next.js, Fastify, and TypeScript.
               </p>
-              <FileList files={data.files} />
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            <div className="flex gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Tech Stack:</span>
+                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Next.js</span>
+                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Fastify</span>
+                <span className="rounded bg-primary/10 px-2 py-1 text-xs">PostgreSQL</span>
+                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Redis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
