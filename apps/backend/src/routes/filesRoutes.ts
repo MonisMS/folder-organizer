@@ -6,6 +6,8 @@ import type { FileInfo } from '@file-manager/shared';
 import { scanInfo } from '../services/scannerInfo.js';
 import { logger } from '../lib/logger.js';
 import { organizeQueue } from '../queues/fileQueue.js';
+import fs from 'fs/promises';
+import path from 'path';
 
 
 
@@ -29,11 +31,51 @@ interface OrganizeResponse {
   errors: string[];
 }
 
-
+interface ValidatePathBody {
+  path: string;
+}
 
 export async function fileRoutes(fastify: FastifyInstance) {
   
+  fastify.post<{ Body: ValidatePathBody }>('/validate-path', async (request, reply) => {
+    const { path: dirPath } = request.body;
 
+    if (!dirPath) {
+      return reply.status(400).send({ error: 'Path is required' });
+    }
+
+    try {
+      const stats = await fs.stat(dirPath);
+      
+      // Check read permissions
+      await fs.access(dirPath, fs.constants.R_OK);
+
+      return {
+        valid: true,
+        exists: true,
+        isDirectory: stats.isDirectory(),
+        readable: true
+      };
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        return {
+          valid: false,
+          exists: false,
+          isDirectory: false,
+          readable: false,
+          error: 'Path does not exist'
+        };
+      }
+      
+      return {
+        valid: false,
+        exists: true, // Assume exists if error is not ENOENT (e.g. EACCES)
+        isDirectory: false,
+        readable: false,
+        error: error.message || 'Validation failed'
+      };
+    }
+  });
   
   fastify.get<{ Querystring: ClassifyQuery }>('/classify', async (request, reply) => {
     const { path } = request.query;

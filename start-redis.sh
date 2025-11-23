@@ -6,3 +6,6 @@ echo ""
 echo "To stop Redis, run: docker stop file-manager-redis"
 echo "To remove Redis, run: docker rm file-manager-redis"
 
+
+
+

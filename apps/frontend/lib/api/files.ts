@@ -26,6 +26,12 @@ export const organizeFiles = async (sourcePath: string, targetPath: string) => {
   return response.data;
 };
 
+// Validate path
+export const validatePath = async (path: string) => {
+  const response = await apiClient.post('/api/files/validate-path', { path });
+  return response.data;
+};
+
 // Get all files
 export const getAllFiles = async () => {
   const response = await apiClient.get<FileInfo[]>('/api/history/files');

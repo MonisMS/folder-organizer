@@ -15,15 +15,16 @@ interface ScanQuery {
   sortBy?: string;    
 }
 export async function buildApp(){
-const fastify = Fastify({
-  logger:true,
-})
+  try {
+    const fastify = Fastify({
+      logger:true,
+    })
 
-// Register CORS - Allow all origins in development
-await fastify.register(cors, {
-  origin: true, // Allow all origins
-  credentials: true,
-});
+    // Register CORS - Allow all origins in development
+    await fastify.register(cors, {
+      origin: true, // Allow all origins
+      credentials: true,
+    });
 
 
 
@@ -69,29 +70,44 @@ fastify.get<{Querystring: ScanQuery}>('/scan',async(request,reply) =>{
   }
   return reply.send(result)
 })
-  await fastify.register(fileRoutes, { prefix: '/api/files' });
-  await fastify.register(historyRoutes, { prefix: '/api/history' });
-  await fastify.register(duplicateRoutes, { prefix: '/api/duplicates' });
-  await fastify.register(jobRoutes, { prefix: '/api/jobs' });
-  await fastify.register(scheduleRoutes, { prefix: '/api/schedules' });
-  startAllSchedules(); // NEW
+    await fastify.register(fileRoutes, { prefix: '/api/files' });
+    await fastify.register(historyRoutes, { prefix: '/api/history' });
+    await fastify.register(duplicateRoutes, { prefix: '/api/duplicates' });
+    await fastify.register(jobRoutes, { prefix: '/api/jobs' });
+    await fastify.register(scheduleRoutes, { prefix: '/api/schedules' });
+    
+    // Start schedules with error handling
+    try {
+      startAllSchedules();
+    } catch (error) {
+      logger.warn({ error }, 'Failed to start some schedules, continuing...');
+    }
 
-// Graceful shutdown
-const shutdown = async () => {
-  logger.info('🛑 Shutting down server...');
-  
-  stopAllSchedules(); // NEW - Stop all cron jobs
-  
-  await fastify.close();
-  logger.info('✅ Server closed gracefully');
-  process.exit(0);
-};
+    // Graceful shutdown
+    const shutdown = async () => {
+      logger.info('🛑 Shutting down server...');
+      
+      try {
+        stopAllSchedules();
+      } catch (error) {
+        logger.warn({ error }, 'Error stopping schedules');
+      }
+      
+      await fastify.close();
+      logger.info('✅ Server closed gracefully');
+      process.exit(0);
+    };
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
-  fastify.get('/health', async () => {
-    return { status: 'ok', timestamp: new Date() };
-  });
+    process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+    
+    fastify.get('/health', async () => {
+      return { status: 'ok', timestamp: new Date() };
+    });
 
-  return fastify;
+    return fastify;
+  } catch (error) {
+    logger.error({ error }, 'Failed to build app');
+    throw error;
+  }
 }
