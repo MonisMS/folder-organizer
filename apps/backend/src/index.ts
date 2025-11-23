@@ -1,4 +1,5 @@
 import Fastify from "fastify"
+import cors from '@fastify/cors';
 import { scanInfo } from "./services/scannerInfo.js"
 import { fileRoutes } from "./routes/filesRoutes.js";
 import { historyRoutes } from "./routes/historyRoutes.js";
@@ -17,6 +18,12 @@ export async function buildApp(){
 const fastify = Fastify({
   logger:true,
 })
+
+// Register CORS - Allow all origins in development
+await fastify.register(cors, {
+  origin: true, // Allow all origins
+  credentials: true,
+});
 
 
 

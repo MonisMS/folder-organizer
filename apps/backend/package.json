@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "@file-manager/shared": "*",
     "@neondatabase/serverless": "^1.0.2",
     "bullmq": "^5.64.1",

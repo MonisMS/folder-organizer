@@ -4,21 +4,22 @@
     "private": true,
     "type": "module",
     "workspaces": [
-      "apps/*",
-      "packages/*"
+        "apps/*",
+        "packages/*"
     ],
-   "scripts": {
-    "dev:backend": "npm run dev --workspace=apps/backend",
-    "dev:worker": "npm run worker --workspace=apps/backend",
-    "dev:frontend": "npm run dev --workspace=apps/frontend",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
-    "build:backend": "npm run build --workspace=apps/backend",
-    "build:frontend": "npm run build --workspace=apps/frontend",
-    "build:shared": "npm run build --workspace=packages/shared",
-    "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend"
+    "scripts": {
+        "dev:backend": "npm run dev --workspace=apps/backend",
+        "dev:worker": "npm run worker --workspace=apps/backend",
+        "dev:frontend": "npm run dev --workspace=apps/frontend",
+        "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
+        "build:backend": "npm run build --workspace=apps/backend",
+        "build:frontend": "npm run build --workspace=apps/frontend",
+        "build:shared": "npm run build --workspace=packages/shared",
+        "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend"
     },
     "devDependencies": {
-      "concurrently": "^9.2.1",
-      "typescript": "^5.9.3"
+        "concurrently": "^9.2.1",
+        "typescript": "^5.9.3"
     }
-  }
+   
+}
