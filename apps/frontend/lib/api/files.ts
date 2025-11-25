@@ -57,6 +57,7 @@ export interface UndoResult {
   success: boolean;
   message: string;
   undoneCount: number;
+  skippedCount?: number;
   failedCount: number;
   errors: string[];
 }

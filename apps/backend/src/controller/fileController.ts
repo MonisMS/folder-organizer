@@ -1,7 +1,7 @@
 import { desc, eq, isNotNull, sql, and, gte } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { files, logs, type NewFile } from "../db/schema.js";
-import { rename, mkdir } from "fs/promises";
+import { rename, mkdir, access } from "fs/promises";
 import path from "path";
 
 export class FileController {
@@ -104,7 +104,7 @@ async getAllDuplicates() {
 }
 
   // Undo a single file move
-  async undoFileMove(fileId: number): Promise<{ success: boolean; error?: string }> {
+  async undoFileMove(fileId: number): Promise<{ success: boolean; skipped?: boolean; error?: string }> {
     try {
       const file = await this.getFileById(fileId);
       if (!file) {
@@ -113,12 +113,33 @@ async getAllDuplicates() {
 
       // Check if file was already undone (originalPath === currentPath)
       if (file.originalPath === file.currentPath) {
-        return { success: false, error: 'File already at original location' };
+        return { success: true, skipped: true }; // Already at original location - count as success
       }
 
       // Ensure the original directory exists
       const originalDir = path.dirname(file.originalPath);
       await mkdir(originalDir, { recursive: true });
+
+      // Check if file exists at current path
+      try {
+        await access(file.currentPath);
+      } catch {
+        // File doesn't exist at currentPath, check if it's already at original
+        try {
+          await access(file.originalPath);
+          // File is already at original location - update DB and return success
+          await db.update(files)
+            .set({ 
+              currentPath: file.originalPath,
+              updatedAt: new Date(),
+              organizedAt: null
+            })
+            .where(eq(files.id, fileId));
+          return { success: true, skipped: true };
+        } catch {
+          return { success: false, error: 'File not found at current or original path' };
+        }
+      }
 
       // Move file back to original location
       await rename(file.currentPath, file.originalPath);
@@ -155,11 +176,13 @@ async getAllDuplicates() {
   }): Promise<{ 
     success: boolean; 
     undoneCount: number; 
+    skippedCount: number;
     failedCount: number; 
     errors: string[];
   }> {
     const errors: string[] = [];
     let undoneCount = 0;
+    let skippedCount = 0;
     let failedCount = 0;
 
     // Get files that were organized recently
@@ -178,12 +201,17 @@ async getAllDuplicates() {
     for (const file of organizedFiles) {
       // Skip files already at original location
       if (file.originalPath === file.currentPath) {
+        skippedCount++;
         continue;
       }
 
       const result = await this.undoFileMove(file.id);
       if (result.success) {
-        undoneCount++;
+        if (result.skipped) {
+          skippedCount++;
+        } else {
+          undoneCount++;
+        }
       } else {
         failedCount++;
         errors.push(`${file.name}: ${result.error}`);
@@ -191,8 +219,9 @@ async getAllDuplicates() {
     }
 
     return {
-      success: failedCount === 0,
+      success: failedCount === 0, // Success if no actual failures
       undoneCount,
+      skippedCount,
       failedCount,
       errors: errors.slice(0, 50) // Limit errors
     };

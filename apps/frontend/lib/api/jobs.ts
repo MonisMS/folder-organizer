@@ -12,11 +12,25 @@ export interface JobStatus {
   finishedOn?: number;
   failedReason?: string;
   attemptsMade: number;
+  timestamp?: number;
+}
+
+export interface JobLogsResponse {
+  success: boolean;
+  jobId: string;
+  queue: string;
+  logs: string[];
+  count: number;
 }
 
 export const getJobStatus = async (jobId: string) => {
   const response = await apiClient.get<{ success: boolean; job: JobStatus }>(`/api/jobs/${jobId}`);
   return response.data.job;
+};
+
+export const getJobLogs = async (jobId: string): Promise<JobLogsResponse> => {
+  const response = await apiClient.get<JobLogsResponse>(`/api/jobs/${jobId}/logs`);
+  return response.data;
 };
 
 export const cancelJob = async (jobId: string) => {

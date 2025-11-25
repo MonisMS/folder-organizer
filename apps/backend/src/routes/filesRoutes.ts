@@ -184,8 +184,9 @@ export async function fileRoutes(fastify: FastifyInstance) {
         }
         return {
           success: true,
-          message: 'File restored to original location',
-          undoneCount: 1,
+          message: result.skipped ? 'File already at original location' : 'File restored to original location',
+          undoneCount: result.skipped ? 0 : 1,
+          skippedCount: result.skipped ? 1 : 0,
           failedCount: 0,
           errors: []
         };
@@ -201,6 +202,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
         success: result.success,
         message: `Restored ${result.undoneCount} files to original locations`,
         undoneCount: result.undoneCount,
+        skippedCount: result.skippedCount,
         failedCount: result.failedCount,
         errors: result.errors
       };

@@ -53,7 +53,13 @@ export function UndoOrganizationCard({ onUndoComplete }: UndoOrganizationCardPro
       setUndoableFiles([]); // Clear the list immediately
       
       if (result.success) {
-        toast.success(`Successfully restored ${result.undoneCount} files to original locations`);
+        if (result.undoneCount > 0) {
+          toast.success(`Successfully restored ${result.undoneCount} files to original locations`);
+        } else if (result.skippedCount && result.skippedCount > 0) {
+          toast.info(`${result.skippedCount} files were already at their original locations`);
+        } else {
+          toast.info('No files needed to be restored');
+        }
       } else {
         toast.warning(`Restored ${result.undoneCount} files, ${result.failedCount} failed`);
       }

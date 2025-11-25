@@ -74,7 +74,12 @@ export async function jobRoutes(fastify: FastifyInstance) {
           state: await job.getState(),
           progress: job.progress,
           data: job.data,
+          result: job.returnvalue,
           timestamp: job.timestamp,
+          processedOn: job.processedOn,
+          finishedOn: job.finishedOn,
+          failedReason: job.failedReason,
+          attemptsMade: job.attemptsMade,
         }))
       );
 
@@ -109,7 +114,12 @@ export async function jobRoutes(fastify: FastifyInstance) {
           state: await job.getState(),
           progress: job.progress,
           data: job.data,
+          result: job.returnvalue,
           timestamp: job.timestamp,
+          processedOn: job.processedOn,
+          finishedOn: job.finishedOn,
+          failedReason: job.failedReason,
+          attemptsMade: job.attemptsMade,
         }))
       );
 
@@ -157,6 +167,47 @@ export async function jobRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({
         success: false,
         error: 'Failed to cancel job',
+      });
+    }
+  });
+
+  // Get job logs
+  fastify.get<{
+    Params: { id: string };
+  }>('/:id/logs', async (request, reply) => {
+    try {
+      const { id } = request.params;
+
+      let job = await organizeQueue.getJob(id);
+      let queueName = 'organize';
+
+      if (!job) {
+        job = await duplicateCheckQueue.getJob(id);
+        queueName = 'duplicate';
+      }
+
+      if (!job) {
+        return reply.status(404).send({
+          success: false,
+          error: 'Job not found',
+        });
+      }
+
+      // Get logs from BullMQ
+      const logs = await organizeQueue.getJobLogs(id, 0, -1);
+
+      return {
+        success: true,
+        jobId: id,
+        queue: queueName,
+        logs: logs.logs || [],
+        count: logs.count || 0,
+      };
+    } catch (error) {
+      logger.error({ error }, 'Error fetching job logs');
+      return reply.status(500).send({
+        success: false,
+        error: 'Failed to fetch job logs',
       });
     }
   });

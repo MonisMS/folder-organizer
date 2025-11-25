@@ -21,17 +21,21 @@ export default function FilesPage() {
     if (!files) return [];
 
     return files.filter((file) => {
+      const fileName = file.name || '';
+      const filePath = file.path || file.currentPath || '';
+      const fileExtension = file.extension || '';
+      
       const matchesSearch =
         searchQuery === '' ||
-        file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        file.path.toLowerCase().includes(searchQuery.toLowerCase());
+        fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        filePath.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
-        categoryFilter === '' || categoryFilter === 'all' || file.extension.toLowerCase() === categoryFilter.toLowerCase();
+        categoryFilter === '' || categoryFilter === 'all' || fileExtension.toLowerCase() === categoryFilter.toLowerCase();
 
       const matchesExtension =
         extensionFilter === '' ||
-        file.extension.toLowerCase().includes(extensionFilter.toLowerCase());
+        fileExtension.toLowerCase().includes(extensionFilter.toLowerCase());
 
       return matchesSearch && matchesCategory && matchesExtension;
     });
