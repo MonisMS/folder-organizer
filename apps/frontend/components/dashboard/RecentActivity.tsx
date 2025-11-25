@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { formatRelativeTime } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { History } from 'lucide-react';
+import { History, FileIcon, ArrowRight, Undo2 } from 'lucide-react';
 
 interface Operation {
   id: number;
@@ -13,6 +13,10 @@ interface Operation {
   timestamp: string;
   fileId?: number;
   metadata?: string;
+  fileName?: string;
+  category?: string;
+  originalPath?: string;
+  currentPath?: string;
 }
 
 interface RecentActivityProps {
@@ -20,13 +24,18 @@ interface RecentActivityProps {
   isLoading: boolean;
 }
 
-const actionColors: Record<string, string> = {
-  scanned: 'bg-blue-500/10 text-blue-500',
-  moved: 'bg-green-500/10 text-green-500',
-  organized: 'bg-purple-500/10 text-purple-500',
-  deleted: 'bg-red-500/10 text-red-500',
-  undone: 'bg-gray-500/10 text-gray-500',
+const actionConfig: Record<string, { color: string; icon: React.ReactNode }> = {
+  scanned: { color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: null },
+  moved: { color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: <ArrowRight className="h-3 w-3" /> },
+  organized: { color: 'bg-purple-500/10 text-purple-500 border-purple-500/20', icon: null },
+  deleted: { color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: null },
+  undone: { color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: <Undo2 className="h-3 w-3" /> },
 };
+
+function getFileName(path?: string): string {
+  if (!path) return '';
+  return path.split(/[/\\]/).pop() || path;
+}
 
 export function RecentActivity({ operations, isLoading }: RecentActivityProps) {
   if (isLoading) {
@@ -80,28 +89,54 @@ export function RecentActivity({ operations, isLoading }: RecentActivityProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Action</TableHead>
-              <TableHead>File ID</TableHead>
-              <TableHead>Time</TableHead>
+              <TableHead className="w-[100px]">Action</TableHead>
+              <TableHead>File</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead className="text-right">Time</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {operations.map((op) => (
-              <TableRow key={op.id}>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={actionColors[op.action.toLowerCase()] || 'bg-gray-500/10 text-gray-500'}
-                  >
-                    {op.action}
-                  </Badge>
-                </TableCell>
-                <TableCell>{op.fileId || '-'}</TableCell>
-                <TableCell className="text-muted-foreground">
-                  {formatRelativeTime(op.timestamp)}
-                </TableCell>
-              </TableRow>
-            ))}
+            {operations.map((op) => {
+              const config = actionConfig[op.action.toLowerCase()] || { 
+                color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', 
+                icon: null 
+              };
+              const fileName = op.fileName || getFileName(op.currentPath) || `File #${op.fileId}`;
+              
+              return (
+                <TableRow key={op.id}>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={`${config.color} flex items-center gap-1 w-fit`}
+                    >
+                      {config.icon}
+                      {op.action}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <FileIcon className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium truncate max-w-[200px]" title={fileName}>
+                        {fileName}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {op.category ? (
+                      <Badge variant="secondary" className="font-normal">
+                        {op.category}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">
+                    {formatRelativeTime(op.timestamp)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>

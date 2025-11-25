@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import type { getJobStatus, JobStatus } from '@/lib/api/jobs';
+import { getJobStatus, type JobStatus } from '@/lib/api/jobs';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 

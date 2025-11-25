@@ -6,6 +6,7 @@ import type { FileInfo } from '@file-manager/shared';
 import { scanInfo } from '../services/scannerInfo.js';
 import { logger } from '../lib/logger.js';
 import { organizeQueue } from '../queues/fileQueue.js';
+import { fileController } from '../controller/fileController.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -163,5 +164,68 @@ export async function fileRoutes(fastify: FastifyInstance) {
         error: 'Failed to create job',
       });
     }
-  })
+  });
+
+  // Undo recent organization
+  fastify.post<{
+    Body: { since?: string; fileId?: number };
+  }>('/undo', async (request, reply) => {
+    try {
+      const { since, fileId } = request.body;
+
+      // If specific file ID provided, undo just that file
+      if (fileId) {
+        const result = await fileController.undoFileMove(fileId);
+        if (!result.success) {
+          return reply.status(400).send({
+            success: false,
+            error: result.error
+          });
+        }
+        return {
+          success: true,
+          message: 'File restored to original location',
+          undoneCount: 1,
+          failedCount: 0,
+          errors: []
+        };
+      }
+
+      // Otherwise, undo all recent files
+      const sinceDate = since ? new Date(since) : undefined;
+      const result = await fileController.undoRecentOrganization(sinceDate ? { since: sinceDate } : undefined);
+
+      logger.info({ result }, 'Undo operation completed');
+
+      return {
+        success: result.success,
+        message: `Restored ${result.undoneCount} files to original locations`,
+        undoneCount: result.undoneCount,
+        failedCount: result.failedCount,
+        errors: result.errors
+      };
+
+    } catch (error) {
+      logger.error({ error }, 'Undo operation failed');
+      return reply.status(500).send({
+        success: false,
+        error: 'Failed to undo organization'
+      });
+    }
+  });
+
+  // Get files that can be undone
+  fastify.get<{
+    Querystring: { since?: string };
+  }>('/undoable', async (request) => {
+    const { since } = request.query;
+    const sinceDate = since ? new Date(since) : undefined;
+    
+    const undoableFiles = await fileController.getUndoableFiles(sinceDate);
+    
+    return {
+      files: undoableFiles,
+      count: undoableFiles.length
+    };
+  });
 }

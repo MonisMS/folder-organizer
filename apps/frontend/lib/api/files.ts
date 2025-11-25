@@ -51,3 +51,34 @@ export const getRecentOperations = async (limit = 10) => {
   });
   return response.data;
 };
+
+// Undo organization
+export interface UndoResult {
+  success: boolean;
+  message: string;
+  undoneCount: number;
+  failedCount: number;
+  errors: string[];
+}
+
+export const undoOrganization = async (options?: { since?: string; fileId?: number }) => {
+  const response = await apiClient.post<UndoResult>('/api/files/undo', options || {});
+  return response.data;
+};
+
+// Get files that can be undone
+export interface UndoableFile {
+  id: number;
+  name: string;
+  originalPath: string;
+  currentPath: string;
+  category: string;
+  organizedAt: string;
+}
+
+export const getUndoableFiles = async (since?: string) => {
+  const response = await apiClient.get<{ files: UndoableFile[]; count: number }>('/api/files/undoable', {
+    params: since ? { since } : {},
+  });
+  return response.data;
+};

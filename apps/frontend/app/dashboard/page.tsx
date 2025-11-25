@@ -6,6 +6,7 @@ import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { OrganizeFilesHero } from '@/components/dashboard/OrganizeFilesHero';
 import { OrganizationPreview } from '@/components/dashboard/OrganizationPreview';
 import { ActiveOrganizationCard } from '@/components/dashboard/ActiveOrganizationCard';
+import { UndoOrganizationCard } from '@/components/dashboard/UndoOrganizationCard';
 import { useAllFiles } from '@/lib/hooks/useFiles';
 import { getRecentOperations, classifyFiles, organizeFiles } from '@/lib/api/files';
 import { listOrganizeJobs, listDuplicateJobs } from '@/lib/api/jobs';
@@ -93,6 +94,12 @@ export default function DashboardPage() {
     queryClient.invalidateQueries({ queryKey: ['recent-operations'] });
     queryClient.invalidateQueries({ queryKey: ['files'] });
     queryClient.invalidateQueries({ queryKey: ['organize-jobs'] });
+    queryClient.invalidateQueries({ queryKey: ['undoable-files'] });
+  };
+
+  const handleUndoComplete = () => {
+    queryClient.invalidateQueries({ queryKey: ['recent-operations'] });
+    queryClient.invalidateQueries({ queryKey: ['files'] });
   };
 
   const handleCancelPreview = () => {
@@ -128,6 +135,8 @@ export default function DashboardPage() {
           onComplete={handleJobComplete} 
         />
       )}
+
+      <UndoOrganizationCard onUndoComplete={handleUndoComplete} />
 
       <div className="pt-4">
         <h2 className="text-xl font-semibold mb-4">Overview</h2>
