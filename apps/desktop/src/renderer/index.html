@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Manager</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+
+      .container {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .logo {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        color: #a0a0a0;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #4facfe;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #4facfe;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .info {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #888;
+      }
+
+      .version {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">📁</div>
+      <h1>File Manager</h1>
+      <p class="subtitle">Smart File Organization Desktop App</p>
+      
+      <div class="loading">
+        <div class="spinner"></div>
+        <span>Loading application...</span>
+      </div>
+
+      <div class="info">
+        <p>This is a placeholder page.</p>
+        <p>The Next.js renderer will be integrated here.</p>
+      </div>
+
+      <p class="version" id="version">Version: Loading...</p>
+    </div>
+
+    <script>
+      // Check if running in Electron
+      if (window.api) {
+        window.api.app.getVersion().then((version) => {
+          document.getElementById('version').textContent = `Version: ${version}`;
+        });
+      }
+    </script>
+  </body>
+</html>

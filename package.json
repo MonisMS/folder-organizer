@@ -11,18 +11,38 @@
         "dev:backend": "npm run dev --workspace=apps/backend",
         "dev:worker": "npm run worker --workspace=apps/backend",
         "dev:frontend": "npm run dev --workspace=apps/frontend",
+        "dev:desktop": "npm run dev --workspace=apps/desktop",
         "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
+        "dev:desktop:full": "concurrently \"npm run dev:frontend\" \"npm run dev:desktop\"",
         "build:backend": "npm run build --workspace=apps/backend",
         "build:frontend": "npm run build --workspace=apps/frontend",
+        "build:desktop": "npm run build --workspace=apps/desktop",
         "build:shared": "npm run build --workspace=packages/shared",
         "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
+        "package:desktop": "npm run package --workspace=apps/desktop",
+        "package:desktop:win": "npm run package:win --workspace=apps/desktop",
+        "package:desktop:mac": "npm run package:mac --workspace=apps/desktop",
+        "package:desktop:linux": "npm run package:linux --workspace=apps/desktop",
         "redis:start": "docker-compose up -d redis",
         "redis:stop": "docker-compose stop redis",
         "redis:logs": "docker-compose logs -f redis"
     },
     "devDependencies": {
+        "@electron-toolkit/preload": "^3.0.2",
+        "@electron-toolkit/utils": "^4.0.0",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/node-cron": "^3.0.11",
         "concurrently": "^9.2.1",
+        "drizzle-orm": "^0.45.1",
+        "electron": "^39.2.7",
+        "electron-log": "^5.4.3",
+        "electron-rebuild": "^3.2.9",
+        "electron-updater": "^6.6.2",
+        "electron-vite": "^5.0.0",
+        "node-cron": "^4.2.1",
         "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "better-sqlite3": "^12.5.0"
     }
-   
 }

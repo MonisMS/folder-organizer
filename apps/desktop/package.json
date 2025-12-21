@@ -1,0 +1,42 @@
+{
+  "name": "@file-manager/desktop",
+  "version": "1.0.0",
+  "description": "Smart File Manager Desktop App",
+  "main": "dist/main/index.js",
+  "author": "File Manager Team",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "postinstall": "electron-builder install-app-deps",
+    "package": "npm run build && electron-builder",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux",
+    "package:all": "npm run build && electron-builder --win --mac --linux"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@file-manager/shared": "workspace:*",
+    "better-queue": "^3.8.12",
+    "better-queue-sqlite": "^1.0.6",
+    "better-sqlite3": "^12.5.0",
+    "drizzle-orm": "^0.44.7",
+    "electron-log": "^5.2.4",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.3.9",
+    "node-cron": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/better-queue": "^3.8.6",
+    "@types/node": "^22.10.2",
+    "@types/node-cron": "^3.0.11",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.5"
+  }
+}
