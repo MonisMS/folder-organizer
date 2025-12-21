@@ -20,9 +20,14 @@ export async function buildApp(){
       logger:true,
     })
 
-    // Register CORS - Allow all origins in development
+    // Register CORS - Allow Vercel frontend + localhost
     await fastify.register(cors, {
-      origin: true, // Allow all origins
+      origin: [
+        'http://localhost:3000',
+        'http://localhost:3001', 
+        'https://your-app.vercel.app', // Replace with your actual Vercel URL
+        /\.vercel\.app$/, // Allow all *.vercel.app domains
+      ],
       credentials: true,
     });
 

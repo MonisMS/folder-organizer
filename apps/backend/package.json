@@ -10,7 +10,8 @@
     "start": "node dist/server.js",
     "start:worker": "node dist/workers/index.js",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
