@@ -31,8 +31,8 @@ export function UndoOrganizationCard({ onUndoComplete }: UndoOrganizationCardPro
       if (result.files.length > 0) {
         setCompletedState(null);
       }
-    } catch (error) {
-      console.error('Failed to load undoable files:', error);
+    } catch {
+      // Silently fail - user will see empty state
     } finally {
       setIsLoading(false);
     }
@@ -65,9 +65,8 @@ export function UndoOrganizationCard({ onUndoComplete }: UndoOrganizationCardPro
       }
       
       onUndoComplete?.();
-    } catch (error) {
+    } catch {
       toast.error('Failed to undo organization');
-      console.error(error);
     } finally {
       setIsUndoing(false);
     }

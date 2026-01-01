@@ -18,6 +18,13 @@ import { initDatabase } from './db';
 // Import scheduler
 import { startAllSchedules, stopAllSchedules } from './services/scheduleManager';
 
+// ============================================
+// Configuration
+// ============================================
+
+// Frontend URL - Next.js runs on port 3001 in development
+const DEV_RENDERER_URL = 'http://localhost:3001';
+
 // Configure logging
 log.transports.file.level = 'info';
 log.transports.console.level = is.dev ? 'debug' : 'info';
@@ -62,9 +69,12 @@ function createWindow(): void {
   });
 
   // Load the renderer
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
+  if (is.dev) {
+    // In development, load the Next.js frontend
+    log.info(`Loading renderer from: ${DEV_RENDERER_URL}`);
+    mainWindow.loadURL(DEV_RENDERER_URL);
   } else {
+    // In production, load the bundled static files
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 

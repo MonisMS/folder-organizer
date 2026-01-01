@@ -25,6 +25,8 @@ export default defineConfig({
     },
   },
   renderer: {
+    // Static renderer for production builds
+    // In development, we load the Next.js frontend instead (see main/index.ts)
     root: resolve(__dirname, 'src/renderer'),
     build: {
       outDir: 'dist/renderer',

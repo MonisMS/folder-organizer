@@ -8,9 +8,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
 # ============================================
 # Build Outputs (Monorepo Structure)
@@ -23,6 +20,10 @@ apps/backend/dist/
 apps/frontend/.next/
 apps/frontend/out/
 apps/frontend/build/
+
+# Desktop build outputs (Electron)
+apps/desktop/out/
+apps/desktop/dist/
 
 # Shared package build output
 packages/shared/dist/
@@ -97,19 +98,13 @@ coverage/
 # Next.js Specific (Frontend)
 # ============================================
 
-# Next.js
-apps/frontend/.next/
-apps/frontend/out/
 apps/frontend/.vercel
 
 # ============================================
 # Project Specific
 # ============================================
 
-# Learning roadmap (if you want to ignore it)
-LEARNING_ROADMAP.md
-FRONTEND_SETUP.md
-MONOREPO_STRUCTURE.md
-FRONTEND_QUICK_START.md
-# parts.md
-
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3

@@ -15,8 +15,6 @@ export function ActiveOrganizationCard({ jobId, onComplete }: ActiveOrganization
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
     const fetchStatus = async () => {
       try {
         const status = await getJobStatus(jobId);
@@ -28,14 +26,13 @@ export function ActiveOrganizationCard({ jobId, onComplete }: ActiveOrganization
             onComplete?.();
           }
         }
-      } catch (err) {
-        console.error('Failed to fetch job status:', err);
+      } catch {
         setError('Failed to track job progress');
       }
     };
 
     fetchStatus();
-    intervalId = setInterval(fetchStatus, 1000);
+    const intervalId = setInterval(fetchStatus, 1000);
 
     return () => clearInterval(intervalId);
   }, [jobId, onComplete]);

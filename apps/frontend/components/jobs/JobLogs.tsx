@@ -57,8 +57,7 @@ export function JobLogs({ jobId, onClose }: JobLogsProps) {
       try {
         const response = await getJobLogs(jobId);
         setLogs(response.logs || []);
-      } catch (err) {
-        console.error('Failed to fetch logs:', err);
+      } catch {
         setError('Failed to fetch logs');
         setLogs([]);
       } finally {

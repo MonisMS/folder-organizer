@@ -50,14 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(JSON.parse(storedUser));
           // Set token in API client
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        } catch (error) {
-          console.error('Failed to parse stored user data:', error);
+        } catch {
+          // Clear corrupted data silently
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
         }
       }
-    } catch (error) {
-      console.error('Error accessing localStorage:', error);
+    } catch {
+      // localStorage unavailable (e.g., SSR or private browsing)
     }
     setIsLoading(false);
   }, []);
@@ -141,16 +141,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await authApi.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
+      // Continue with local logout even if API fails
     } finally {
       setToken(null);
       setUser(null);
       try {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
-      } catch (error) {
-        console.error('Error clearing localStorage:', error);
+      } catch {
+        // localStorage unavailable
       }
       delete apiClient.defaults.headers.common['Authorization'];
       toast.success('Logged out successfully');
