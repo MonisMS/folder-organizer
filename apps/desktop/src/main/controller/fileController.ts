@@ -1,9 +1,10 @@
 import { eq, desc, isNotNull, and, gte, sql } from 'drizzle-orm';
 import { getDb } from '../db';
 import { files, logs, type NewFile } from '../db/schema';
-import { rename, mkdir, access } from 'fs/promises';
+import { mkdir, access } from 'fs/promises';
 import { dirname } from 'path';
 import log from 'electron-log';
+import { moveFileSafe } from '../services/fileUtils';
 
 class FileController {
   async createFile(fileData: NewFile) {
@@ -155,7 +156,7 @@ class FileController {
       }
 
       // Move file back to original location
-      await rename(file.currentPath, file.originalPath);
+      await moveFileSafe(file.currentPath, file.originalPath);
 
       // Update database
       await db

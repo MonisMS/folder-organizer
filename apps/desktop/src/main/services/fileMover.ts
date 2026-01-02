@@ -1,9 +1,10 @@
-import { access, mkdir, rename } from 'fs/promises';
+import { access, mkdir } from 'fs/promises';
 import { join, dirname, extname, basename } from 'path';
 import log from 'electron-log';
 import type { FileInfo } from '@file-manager/shared';
 import { fileController } from '../controller/fileController';
 import { generateFileHash } from './hashService';
+import { moveFileSafe } from './fileUtils';
 
 export interface MoveResult {
   success: boolean;
@@ -76,7 +77,7 @@ export async function moveFile(
 
     // Move the file
     log.info(`Moving file from ${file.path} to ${finalPath}`);
-    await rename(file.path, finalPath);
+    await moveFileSafe(file.path, finalPath);
     log.info(`Successfully moved file to ${finalPath}`);
 
     // Save to database

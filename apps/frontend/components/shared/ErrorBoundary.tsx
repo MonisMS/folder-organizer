@@ -8,11 +8,23 @@ import { AlertTriangle } from 'lucide-react';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+}
+
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+/**
+ * Centralized error tracking function.
+ * Replace with Sentry.captureException or your own implementation.
+ */
+function trackError(error: Error, errorInfo: React.ErrorInfo): void {
+  // Example: Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+  // TODO: Integrate with Sentry or other error tracking service
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -26,10 +38,26 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Error is captured in getDerivedStateFromError
-    // Can integrate with error tracking service here (e.g., Sentry)
-    void error;
-    void errorInfo;
+    try {
+      // Log to console in development for debugging
+      if (isDevelopment) {
+        console.error('[ErrorBoundary] Caught error:', error);
+        console.error('[ErrorBoundary] Component stack:', errorInfo.componentStack);
+      }
+
+      // Call the passed-in onError prop if provided
+      if (this.props.onError) {
+        this.props.onError(error, errorInfo);
+      }
+
+      // Send to centralized error tracking (e.g., Sentry)
+      trackError(error, errorInfo);
+    } catch (trackingError) {
+      // Ensure the handler never throws
+      if (isDevelopment) {
+        console.error('[ErrorBoundary] Error in error handler:', trackingError);
+      }
+    }
   }
 
   render() {

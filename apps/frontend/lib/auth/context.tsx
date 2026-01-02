@@ -34,8 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // If auth is bypassed, set a mock user and skip API calls
     if (BYPASS_AUTH) {
+      const devToken = 'dev-token';
       setUser({ id: 'dev-user', email: 'dev@example.com' });
-      setToken('dev-token');
+      setToken(devToken);
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${devToken}`;
       setIsLoading(false);
       return;
     }
@@ -65,9 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     // If auth is bypassed, just set mock user and redirect
     if (BYPASS_AUTH) {
+      const devToken = 'dev-token';
       setUser({ id: 'dev-user', email: email || 'dev@example.com' });
-      setToken('dev-token');
-      toast.success('Login successful! (Auth bypassed)');
+      setToken(devToken);
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${devToken}`;
+      toast.success('Login successful');
       router.push('/dashboard');
       return;
     }
@@ -96,9 +100,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = useCallback(async (email: string, password: string, confirmPassword: string) => {
     // If auth is bypassed, just set mock user and redirect
     if (BYPASS_AUTH) {
+      const devToken = 'dev-token';
       setUser({ id: 'dev-user', email: email || 'dev@example.com' });
-      setToken('dev-token');
-      toast.success('Registration successful! (Auth bypassed)');
+      setToken(devToken);
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${devToken}`;
+      toast.success('Registration successful!');
       router.push('/dashboard');
       return;
     }

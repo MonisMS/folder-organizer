@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Download as DownloadIcon, Monitor, Apple, Terminal, ExternalLink, Github } from 'lucide-react';
 
 const APP_VERSION = '1.0.0';
-const GITHUB_REPO = 'https://github.com/your-username/file-manager';
+const GITHUB_REPO = 'https://github.com/MonisMS/file-manager';
 
 const downloads = [
   {

@@ -9,11 +9,10 @@ import * as schema from './schema';
 let sqlite: SqliteDatabase | null = null;
 let db: BetterSQLite3Database<typeof schema> | null = null;
 
-// Get database path in user data directory
+
 function getDbPath(): string {
   const userDataPath = app.getPath('userData');
   
-  // Ensure directory exists
   if (!existsSync(userDataPath)) {
     mkdirSync(userDataPath, { recursive: true });
   }
