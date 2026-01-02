@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 
+console.log('[Preload] Script starting...');
+console.log('[Preload] contextIsolated:', process.contextIsolated);
+
 // Custom APIs for renderer
 const api = {
   // ============ FILE OPERATIONS ============
@@ -27,6 +30,7 @@ const api = {
     getAll: () => ipcRenderer.invoke('duplicates:list'),
     scan: (sourcePath: string) => ipcRenderer.invoke('duplicates:scan', sourcePath),
     getByFileId: (fileId: number) => ipcRenderer.invoke('duplicates:file', fileId),
+    delete: (filePath: string) => ipcRenderer.invoke('duplicates:delete', filePath),
   },
 
   // ============ JOBS ============
@@ -99,9 +103,12 @@ const api = {
 
 // Use `contextBridge` APIs to expose Electron APIs to renderer
 if (process.contextIsolated) {
+  console.log('[Preload] Exposing APIs via contextBridge...');
   contextBridge.exposeInMainWorld('electron', electronAPI);
   contextBridge.exposeInMainWorld('api', api);
+  console.log('[Preload] ✅ APIs exposed successfully');
 } else {
+  console.log('[Preload] Context NOT isolated, using direct assignment');
   // @ts-ignore (for older electron versions)
   window.electron = electronAPI;
   // @ts-ignore

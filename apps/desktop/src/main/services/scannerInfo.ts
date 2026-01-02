@@ -44,8 +44,13 @@ export async function scanInfo(dirPath: string): Promise<ScanResult> {
               createdAt: stats.birthtime,
               modifiedAt: stats.mtime,
             });
-          } catch (err) {
-            log.warn(`Could not stat file: ${fullPath}`, err);
+          } catch (err: any) {
+            // Skip files that are in use, permission denied, or other access issues
+            if (err.code === 'EBUSY' || err.code === 'EPERM' || err.code === 'EACCES') {
+              log.debug(`Skipping inaccessible file: ${fullPath} (${err.code})`);
+            } else {
+              log.warn(`Could not stat file: ${fullPath}`, err);
+            }
           }
         }
       }

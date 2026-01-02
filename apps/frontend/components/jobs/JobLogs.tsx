@@ -56,7 +56,9 @@ export function JobLogs({ jobId, onClose }: JobLogsProps) {
       setError(null);
       try {
         const response = await getJobLogs(jobId);
-        setLogs(response.logs || []);
+        // Handle both array response (Electron) and object response (backend)
+        const logsArray = Array.isArray(response) ? response : (response as any)?.logs || [];
+        setLogs(logsArray);
       } catch {
         setError('Failed to fetch logs');
         setLogs([]);

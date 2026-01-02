@@ -32,32 +32,73 @@ export async function buildApp() {
     });
 
     // Legacy scan endpoint
+    const VALID_SORT_OPTIONS = ['name', 'size'] as const;
+    type SortOption = typeof VALID_SORT_OPTIONS[number];
+
     fastify.get<{ Querystring: ScanQuery }>('/scan', async (request, reply) => {
       const { path, extension, sortBy } = request.query;
 
+      // Input validation
       if (!path) {
         return reply.status(400).send({ error: 'Path query parameter is required' });
       }
 
-      const result = await scanInfo(path);
-
-      if (extension) {
-        const filteredFiles = result.files.filter(
-          (file) => file.extension.toLowerCase() === extension.toLowerCase()
-        );
-        result.files = filteredFiles;
-        result.totalFiles = filteredFiles.length;
+      if (typeof path !== 'string' || path.trim() === '') {
+        return reply.status(400).send({ error: 'Path must be a non-empty string' });
       }
 
-      if (sortBy === 'name') {
-        result.files.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+      if (sortBy && !VALID_SORT_OPTIONS.includes(sortBy as SortOption)) {
+        return reply.status(400).send({ 
+          error: `Invalid sortBy value. Must be one of: ${VALID_SORT_OPTIONS.join(', ')}` 
+        });
       }
 
-      if (sortBy === 'size') {
-        result.files.sort((a, b) => a.size - b.size);
-      }
+      try {
+        const scanResult = await scanInfo(path);
 
-      return reply.send(result);
+        // Create a copy to avoid mutating the original result
+        let files = [...scanResult.files];
+        let totalFiles = scanResult.totalFiles;
+
+        // Apply extension filter
+        if (extension) {
+          const normalizedExt = extension.toLowerCase();
+          files = files.filter(
+            (file) => file.extension.toLowerCase() === normalizedExt
+          );
+          totalFiles = files.length;
+        }
+
+        // Apply sorting
+        if (sortBy === 'name') {
+          files.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+        } else if (sortBy === 'size') {
+          files.sort((a, b) => a.size - b.size);
+        }
+
+        return reply.send({
+          ...scanResult,
+          files,
+          totalFiles,
+        });
+      } catch (error) {
+        logger.error({ error, path }, 'Error scanning directory');
+        
+        if (error instanceof Error) {
+          // Handle common filesystem errors
+          if (error.message.includes('ENOENT') || error.message.includes('no such file')) {
+            return reply.status(404).send({ error: 'Directory not found' });
+          }
+          if (error.message.includes('EACCES') || error.message.includes('permission denied')) {
+            return reply.status(403).send({ error: 'Permission denied to access directory' });
+          }
+          if (error.message.includes('ENOTDIR') || error.message.includes('not a directory')) {
+            return reply.status(400).send({ error: 'Path is not a directory' });
+          }
+        }
+        
+        return reply.status(500).send({ error: 'Failed to scan directory' });
+      }
     });
 
     await fastify.register(fileRoutes, { prefix: '/api/files' });

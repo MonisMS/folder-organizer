@@ -22,7 +22,7 @@ export default function FilesPage() {
 
     return files.filter((file) => {
       const fileName = file.name || '';
-      const filePath = file.path || file.currentPath || '';
+      const filePath = file.path || (file as { currentPath?: string }).currentPath || '';
       const fileExtension = file.extension || '';
       
       const matchesSearch =

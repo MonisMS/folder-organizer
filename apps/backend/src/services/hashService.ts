@@ -8,7 +8,7 @@ export async function generateFileHash(filePath: string): Promise<string> {
       const hash = createHash('sha256');
       const stream = createReadStream(filePath);
 
-      stream.on('data', (chunk: Buffer) => {
+      stream.on('data', (chunk) => {
         hash.update(chunk);
       });
 
@@ -19,11 +19,11 @@ export async function generateFileHash(filePath: string): Promise<string> {
       });
 
       stream.on('error', (error) => {
-        logger.error(`Error hashing file ${filePath}:`, error);
+        logger.error({ error }, `Error hashing file ${filePath}`);
         reject(error);
       });
     } catch (error) {
-      logger.error(`Failed to create hash stream for ${filePath}:`, error);
+      logger.error({ error }, `Failed to create hash stream for ${filePath}`);
       reject(error);
     }
   });

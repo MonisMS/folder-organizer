@@ -110,7 +110,7 @@ export function ActiveJobsWidget({ jobs, isLoading }: ActiveJobsWidgetProps) {
               </div>
               {job.processedOn && (
                 <span className="text-xs text-muted-foreground">
-                  {formatRelativeTime(job.processedOn)}
+                  {formatRelativeTime(new Date(job.processedOn))}
                 </span>
               )}
             </div>

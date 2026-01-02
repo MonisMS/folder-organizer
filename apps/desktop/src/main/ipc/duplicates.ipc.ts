@@ -8,6 +8,7 @@ export function registerDuplicateHandlers(): void {
   ipcMain.handle('duplicates:list', async () => {
     try {
       const duplicates = await fileController.getAllDuplicates();
+      log.info(`[IPC] duplicates:list returning ${duplicates.length} groups`);
       return {
         success: true,
         count: duplicates.length,
@@ -22,6 +23,7 @@ export function registerDuplicateHandlers(): void {
   // Scan for duplicates (create job)
   ipcMain.handle('duplicates:scan', async (_, sourcePath: string) => {
     try {
+      log.info(`[IPC] Starting duplicate scan for: ${sourcePath}`);
       const job = await createJob('duplicate', { sourcePath });
       return {
         success: true,
@@ -30,6 +32,18 @@ export function registerDuplicateHandlers(): void {
       };
     } catch (error) {
       log.error('Failed to create duplicate scan job:', error);
+      throw error;
+    }
+  });
+
+  // Delete a duplicate file
+  ipcMain.handle('duplicates:delete', async (_, filePath: string) => {
+    try {
+      log.info(`[IPC] Deleting duplicate file: ${filePath}`);
+      const result = await fileController.deleteFile(filePath);
+      return result;
+    } catch (error) {
+      log.error('Failed to delete duplicate file:', error);
       throw error;
     }
   });

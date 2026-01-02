@@ -261,6 +261,72 @@ class FileController {
       count: filteredFiles.length,
     };
   }
+
+  async upsertFileWithHash(fileData: {
+    name: string;
+    originalPath: string;
+    currentPath: string;
+    size: number;
+    extension: string;
+    hash: string;
+  }) {
+    const db = getDb();
+    
+    // Check if file already exists by path
+    const [existing] = await db
+      .select()
+      .from(files)
+      .where(eq(files.currentPath, fileData.currentPath));
+
+    if (existing) {
+      // Update the existing file with new hash
+      const [updated] = await db
+        .update(files)
+        .set({
+          hash: fileData.hash,
+          size: fileData.size,
+          updatedAt: new Date(),
+        })
+        .where(eq(files.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new file entry
+      const [newFile] = await db
+        .insert(files)
+        .values({
+          name: fileData.name,
+          originalPath: fileData.originalPath,
+          currentPath: fileData.currentPath,
+          size: fileData.size,
+          extension: fileData.extension,
+          hash: fileData.hash,
+          scannedAt: new Date(),
+        })
+        .returning();
+      return newFile;
+    }
+  }
+
+  async deleteFile(filePath: string): Promise<{ success: boolean; error?: string }> {
+    const fs = await import('fs/promises');
+    
+    try {
+      // Delete file from filesystem
+      await fs.unlink(filePath);
+      
+      // Delete from database
+      const db = getDb();
+      await db.delete(files).where(eq(files.currentPath, filePath));
+      
+      log.info(`Deleted file: ${filePath}`);
+      return { success: true };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      log.error(`Failed to delete file ${filePath}:`, errorMsg);
+      return { success: false, error: errorMsg };
+    }
+  }
 }
 
 export const fileController = new FileController();

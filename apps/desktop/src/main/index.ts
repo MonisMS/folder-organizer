@@ -15,6 +15,9 @@ import { registerDialogHandlers } from './ipc/dialogs.ipc';
 // Import database
 import { initDatabase } from './db';
 
+// Import job processors (must be imported to register them)
+import './queue/processors';
+
 // Import scheduler
 import { startAllSchedules, stopAllSchedules } from './services/scheduleManager';
 
@@ -35,6 +38,9 @@ electronApp.setAppUserModelId('com.filemanager.desktop');
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
+  const preloadPath = join(__dirname, '../preload/index.js');
+  log.info(`📦 Preload script path: ${preloadPath}`);
+  
   // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -47,7 +53,7 @@ function createWindow(): void {
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     icon: join(__dirname, '../../resources/icon.png'),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: preloadPath,
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,

@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/neon-http';
+import { drizzle, NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import * as schema from './schema.js';
 import 'dotenv/config';
@@ -10,7 +10,7 @@ if (!process.env.DATABASE_URL) {
   throw error;
 }
 
-let db;
+let db: NeonHttpDatabase<typeof schema>;
 try {
   const sql = neon(process.env.DATABASE_URL);
   db = drizzle(sql, { schema });

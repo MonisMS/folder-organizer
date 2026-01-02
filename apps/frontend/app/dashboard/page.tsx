@@ -12,7 +12,7 @@ import { getRecentOperations, classifyFiles, organizeFiles } from '@/lib/api/fil
 import { listOrganizeJobs, listDuplicateJobs } from '@/lib/api/jobs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { FileInfo } from '@file-manager/shared';
+import type { FileInfo } from '@file-manager/shared';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();

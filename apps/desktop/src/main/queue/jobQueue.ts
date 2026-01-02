@@ -40,6 +40,9 @@ export const jobEvents = new EventEmitter();
 // In-memory job registry (also persisted to SQLite)
 const activeJobs = new Map<string, Job>();
 
+// Track which jobs are being cancelled
+const cancelledJobs = new Set<string>();
+
 // Job processor type
 type JobProcessor = (
   job: Job,
@@ -123,6 +126,11 @@ async function processJob(job: Job): Promise<void> {
 
   // Progress updater
   const updateProgress = async (progress: number): Promise<void> => {
+    // Check if job was cancelled
+    if (cancelledJobs.has(job.id)) {
+      throw new Error('Job cancelled by user');
+    }
+    
     job.progress = progress;
     await saveJobToDb(job);
     sendToRenderer('job:progress', { id: job.id, progress });
@@ -137,6 +145,17 @@ async function processJob(job: Job): Promise<void> {
   try {
     const result = await processor(job, updateProgress, addLog);
     
+    // Check if job was cancelled after completion
+    if (cancelledJobs.has(job.id)) {
+      cancelledJobs.delete(job.id);
+      job.status = 'failed';
+      job.error = 'Cancelled by user';
+      job.completedAt = new Date();
+      await saveJobToDb(job);
+      sendToRenderer('job:failed', { id: job.id, error: 'Cancelled by user' });
+      return;
+    }
+
     job.status = 'completed';
     job.progress = 100;
     job.result = result;
@@ -155,6 +174,9 @@ async function processJob(job: Job): Promise<void> {
 
     sendToRenderer('job:failed', { id: job.id, error: errorMessage });
     log.error(`❌ Job failed: ${job.id}`, error);
+    
+    // Clean up cancelled flag if present
+    cancelledJobs.delete(job.id);
   }
 }
 
@@ -242,23 +264,58 @@ export async function getJobsByType(type: 'organize' | 'duplicate'): Promise<Job
   }));
 }
 
-// Cancel a job (if still waiting)
+// Cancel a job (can cancel waiting or active jobs)
 export async function cancelJob(id: string): Promise<boolean> {
-  const job = activeJobs.get(id);
+  // First check active jobs
+  let job = activeJobs.get(id);
   
-  if (!job || job.status !== 'waiting') {
+  // If not in active jobs, try to load from database
+  if (!job) {
+    job = await getJob(id) || undefined;
+  }
+  
+  if (!job) {
+    log.warn(`Job not found: ${id}`);
     return false;
   }
 
-  job.status = 'failed';
-  job.error = 'Cancelled by user';
-  job.completedAt = new Date();
-  await saveJobToDb(job);
-  
-  activeJobs.delete(id);
-  sendToRenderer('job:failed', { id, error: 'Cancelled by user' });
-  
-  return true;
+  // If waiting, cancel immediately
+  if (job.status === 'waiting') {
+    job.status = 'failed';
+    job.error = 'Cancelled by user';
+    job.completedAt = new Date();
+    await saveJobToDb(job);
+    activeJobs.delete(id);
+    sendToRenderer('job:failed', { id, error: 'Cancelled by user' });
+    log.info(`⛔ Job cancelled: ${id}`);
+    return true;
+  }
+
+  // If active, mark for cancellation
+  if (job.status === 'active') {
+    cancelledJobs.add(id);
+    
+    // Also update in DB immediately so it shows as cancelled on refresh
+    job.status = 'failed';
+    job.error = 'Cancelled by user';
+    job.completedAt = new Date();
+    await saveJobToDb(job);
+    activeJobs.delete(id);
+    sendToRenderer('job:failed', { id, error: 'Cancelled by user' });
+    
+    log.info(`⛔ Job cancellation requested: ${id}`);
+    return true;
+  }
+
+  // Already completed or failed - but allow removing from list
+  if (job.status === 'completed' || job.status === 'failed') {
+    // Just return success since job is already done
+    log.info(`Job already in terminal state ${job.status}: ${id}`);
+    return true;
+  }
+
+  log.warn(`Cannot cancel job in ${job.status} state: ${id}`);
+  return false;
 }
 
 // Register a job processor

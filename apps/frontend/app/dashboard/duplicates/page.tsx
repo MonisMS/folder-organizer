@@ -4,22 +4,30 @@ import { DuplicateScanner } from '@/components/duplicates/DuplicateScanner';
 import { DuplicateGroups } from '@/components/duplicates/DuplicateGroups';
 import { useDuplicates } from '@/lib/hooks/useDuplicate';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
-import { FilePreview } from '@/components/files/FilePreview';
 import { useState } from 'react';
-import type { FileInfo } from '@file-manager/shared';
 import { toast } from 'sonner';
+import { deleteDuplicateFile } from '@/lib/api/duplicates';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function DuplicatesPage() {
-  const { data, isLoading, error } = useDuplicates();
-  const [previewFile, setPreviewFile] = useState<FileInfo | null>(null);
+  const { data, isLoading, error, refetch } = useDuplicates();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteDuplicateFile,
+    onSuccess: () => {
+      toast.success('File deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['duplicates'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete file');
+    },
+  });
 
   const handleDelete = (filePath: string) => {
-    // TODO: Implement delete API call
-    toast.info('Delete functionality will be implemented');
-  };
-
-  const handlePreview = (file: FileInfo) => {
-    setPreviewFile(file);
+    if (confirm(`Are you sure you want to delete this file?\n\n${filePath}\n\nThis action cannot be undone.`)) {
+      deleteMutation.mutate(filePath);
+    }
   };
 
   if (isLoading) {
@@ -60,12 +68,7 @@ export default function DuplicatesPage() {
       <DuplicateGroups
         groups={groups}
         onDelete={handleDelete}
-        onPreview={handlePreview}
       />
-
-      {previewFile && (
-        <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />
-      )}
     </div>
   );
 }

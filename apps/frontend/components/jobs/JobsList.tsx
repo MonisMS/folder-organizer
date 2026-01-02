@@ -59,8 +59,8 @@ export function JobsList({
           <JobCard
             key={job.id}
             job={job}
-            onCancel={onCancel}
-            onViewLogs={onViewLogs}
+            {...(onCancel && { onCancel })}
+            {...(onViewLogs && { onViewLogs })}
           />
         ))}
       </div>

@@ -30,7 +30,7 @@ export const schedules = {
   // Daily cleanup of old jobs at midnight
   dailyJobCleanup: {
     pattern: '0 0 * * *',
-    enabled: true,
+    enabled: false, // Disabled - users can manually trigger cleanup if needed
     timezone: 'UTC',
     config: {
       daysToKeep: 7,
