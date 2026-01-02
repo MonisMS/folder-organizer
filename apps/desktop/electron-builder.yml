@@ -1,0 +1,94 @@
+appId: com.filemanager.desktop
+productName: File Manager
+copyright: Copyright © 2024 File Manager
+
+directories:
+  buildResources: resources
+  output: release/${version}
+
+files:
+  - dist/**/*
+  - resources/**/*
+
+extraResources:
+  - from: resources/
+    to: resources/
+
+# Windows Configuration
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.ico
+  artifactName: ${productName}-${version}-Windows-Setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: File Manager
+
+# macOS Configuration
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: resources/icon.icns
+  category: public.app-category.utilities
+  artifactName: ${productName}-${version}-macOS-${arch}.${ext}
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+  window:
+    width: 540
+    height: 380
+
+# Linux Configuration  
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  icon: resources/icons
+  category: Utility
+  artifactName: ${productName}-${version}-Linux-${arch}.${ext}
+  maintainer: filemanager@example.com
+  vendor: File Manager Team
+  synopsis: Smart File Manager Desktop Application
+  description: |
+    A powerful desktop application for organizing, managing, 
+    and detecting duplicate files on your computer.
+
+deb:
+  depends:
+    - gconf2
+    - gconf-service
+    - libnotify4
+    - libappindicator1
+    - libxtst6
+    - libnss3
+
+appImage:
+  license: MIT
+
+# Auto-update configuration
+publish:
+  provider: github
+  owner: your-username
+  repo: file-manager
+  releaseType: release
+
+# Code signing (configure for production)
+# afterSign: scripts/notarize.js

@@ -39,8 +39,8 @@ export function HistoryTimeline({
         <HistoryItem
           key={op.id}
           {...op}
-          onUndo={onUndo}
-          onView={onView}
+          {...(onUndo && { onUndo })}
+          {...(onView && { onView })}
         />
       ))}
     </div>

@@ -2,7 +2,7 @@ export const schedules = {
 //everyday at 2 am 
 autoOrganizeDownloads :{
     pattern: '0 2 * * *',
-    enabled: true, // Disabled - update path first
+    enabled: false, // Disabled - users must manually trigger organization
     timezone: 'Asia/Kolkata',
     config:{
         sourcePath: 'C:\\Users\\Monis\\Downloads', // Update to your actual path
@@ -13,7 +13,7 @@ autoOrganizeDownloads :{
 //weekly duplicate scan 
 weeklyDuplicateScan:{
     pattern: '0 3 * * 0',
-    enabled: true,
+    enabled: false, // Disabled - users must manually trigger
     timezone: 'Asia/Kolkata',
     config:{
         sourcePath: 'C:\\OrganizedFiles',
@@ -24,7 +24,7 @@ weeklyDuplicateScan:{
 
 dailyJobCleanup:{
     pattern: '0 0 * * *',
-    enabled: true,
+    enabled: false, // Disabled - users must manually trigger
     timezone: 'Asia/Kolkata',
     config:{
         daysToKeep: 7 // Keep jobs for 7 days

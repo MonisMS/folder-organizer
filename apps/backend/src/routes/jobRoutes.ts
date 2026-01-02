@@ -145,8 +145,11 @@ export async function jobRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       let job = await organizeQueue.getJob(id);
+      let queueName = 'organize';
+      
       if (!job) {
         job = await duplicateCheckQueue.getJob(id);
+        queueName = 'duplicate';
       }
 
       if (!job) {
@@ -156,11 +159,35 @@ export async function jobRoutes(fastify: FastifyInstance) {
         });
       }
 
-      await job.remove();
+      const state = await job.getState();
+      
+      try {
+        if (state === 'waiting') {
+          // If waiting, remove and discard
+          await job.remove();
+          logger.info({ jobId: id }, 'Waiting job cancelled and removed');
+        } else if (state === 'active') {
+          // If active, move to failed state
+          await job.moveToFailed(new Error('Cancelled by user'), 'cancelled');
+          logger.info({ jobId: id }, 'Active job failed (cancelled by user)');
+        } else {
+          // Already completed or failed
+          return reply.status(400).send({
+            success: false,
+            error: `Cannot cancel job in ${state} state`,
+          });
+        }
+      } catch (cancelError) {
+        // If fail/remove fails, still try to remove
+        await job.remove().catch(() => {
+          // Ignore errors
+        });
+        logger.warn({ jobId: id, error: cancelError }, 'Error cancelling job, attempted removal');
+      }
 
       return {
         success: true,
-        message: 'Job cancelled and removed',
+        message: 'Job cancelled',
       };
     } catch (error) {
       logger.error({ error }, 'Error cancelling job');

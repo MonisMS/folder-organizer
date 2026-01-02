@@ -8,21 +8,41 @@
         "packages/*"
     ],
     "scripts": {
-        "dev:backend": "npm run dev --workspace=apps/backend",
-        "dev:worker": "npm run worker --workspace=apps/backend",
-        "dev:frontend": "npm run dev --workspace=apps/frontend",
-        "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
-        "build:backend": "npm run build --workspace=apps/backend",
-        "build:frontend": "npm run build --workspace=apps/frontend",
-        "build:shared": "npm run build --workspace=packages/shared",
-        "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
+        "dev:backend": "pnpm --filter backend dev",
+        "dev:frontend": "pnpm --filter frontend dev",
+        "dev:desktop": "pnpm --filter @file-manager/desktop dev",
+        "dev:web": "concurrently -n backend,frontend -c blue,green \"pnpm dev:backend\" \"pnpm dev:frontend\"",
+        "dev:desktop:full": "concurrently -n frontend,desktop -c green,magenta \"pnpm dev:frontend\" \"sleep 3 && pnpm dev:desktop\"",
+        "build:backend": "pnpm --filter backend build",
+        "build:frontend": "pnpm --filter frontend build",
+        "build:desktop": "pnpm --filter @file-manager/desktop build",
+        "build:shared": "pnpm --filter @file-manager/shared build",
+        "build:all": "pnpm build:shared && pnpm build:backend && pnpm build:frontend",
+        "package:desktop": "pnpm --filter @file-manager/desktop package",
+        "package:desktop:win": "pnpm --filter @file-manager/desktop package:win",
+        "package:desktop:mac": "pnpm --filter @file-manager/desktop package:mac",
+        "package:desktop:linux": "pnpm --filter @file-manager/desktop package:linux",
         "redis:start": "docker-compose up -d redis",
         "redis:stop": "docker-compose stop redis",
-        "redis:logs": "docker-compose logs -f redis"
+        "redis:logs": "docker-compose logs -f redis",
+        "clean": "rimraf apps/*/dist apps/*/.next packages/*/dist node_modules/.cache"
     },
     "devDependencies": {
+        "@electron-toolkit/preload": "^3.0.2",
+        "@electron-toolkit/utils": "^4.0.0",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/node-cron": "^3.0.11",
         "concurrently": "^9.2.1",
+        "drizzle-orm": "^0.45.1",
+        "electron": "^39.2.7",
+        "electron-log": "^5.4.3",
+        "electron-rebuild": "^3.2.9",
+        "electron-updater": "^6.6.2",
+        "electron-vite": "^5.0.0",
+        "node-cron": "^4.2.1",
         "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "better-sqlite3": "^12.5.0"
     }
-   
 }

@@ -100,7 +100,7 @@ export async function duplicateRoutes(fastify: FastifyInstance) {
       return {
         success: true,
         originalFile: file,
-        duplicates: duplicates.filter(d => d.id !== fileId),
+        duplicates: duplicates.filter((d: typeof file) => d.id !== fileId),
         count: duplicates.length - 1,
       };
     } catch (error) {

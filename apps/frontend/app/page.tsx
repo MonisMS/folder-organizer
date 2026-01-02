@@ -1,5 +1,6 @@
 import { Hero } from '@/components/landing/Hero';
 import { Features } from '@/components/landing/Features';
+import { Download } from '@/components/landing/Download';
 import { CTA } from '@/components/landing/CTA';
 
 export default function LandingPage() {
@@ -7,6 +8,7 @@ export default function LandingPage() {
     <main className="min-h-screen">
       <Hero />
       <Features />
+      <Download />
       <CTA />
       
       {/* Footer */}

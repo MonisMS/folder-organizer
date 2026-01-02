@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 
 // Format file size
 export function formatFileSize(size: number): string {
-  return bytes(size);
+  return bytes(size) ?? 'N/A';
 }
 
 // Format date

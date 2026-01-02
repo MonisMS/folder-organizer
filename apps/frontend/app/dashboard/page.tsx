@@ -12,7 +12,7 @@ import { getRecentOperations, classifyFiles, organizeFiles } from '@/lib/api/fil
 import { listOrganizeJobs, listDuplicateJobs } from '@/lib/api/jobs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { FileInfo } from '@file-manager/shared';
+import type { FileInfo } from '@file-manager/shared';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -63,9 +63,8 @@ export default function DashboardPage() {
       const data = await classifyFiles(source);
       setPreviewData(data);
       toast.success('Files analyzed successfully');
-    } catch (error) {
+    } catch {
       toast.error('Failed to analyze files');
-      console.error(error);
     } finally {
       setIsPreviewLoading(false);
     }
@@ -82,9 +81,8 @@ export default function DashboardPage() {
         toast.success('Organization started');
         queryClient.invalidateQueries({ queryKey: ['organize-jobs'] });
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to start organization');
-      console.error(error);
     }
   };
 

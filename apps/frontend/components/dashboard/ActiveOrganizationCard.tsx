@@ -5,6 +5,8 @@ import { getJobStatus, type JobStatus } from '@/lib/api/jobs';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 interface ActiveOrganizationCardProps {
   jobId: string;
   onComplete?: () => void;
@@ -15,7 +17,7 @@ export function ActiveOrganizationCard({ jobId, onComplete }: ActiveOrganization
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
 
     const fetchStatus = async () => {
       try {
@@ -23,13 +25,19 @@ export function ActiveOrganizationCard({ jobId, onComplete }: ActiveOrganization
         setJob(status);
 
         if (status.state === 'completed' || status.state === 'failed') {
-          clearInterval(intervalId);
+          if (intervalId !== null) {
+            clearInterval(intervalId);
+          }
           if (status.state === 'completed') {
             onComplete?.();
           }
         }
       } catch (err) {
-        console.error('Failed to fetch job status:', err);
+        if (isDevelopment) {
+          console.error('[ActiveOrganizationCard.fetchStatus] Failed to track job progress:', err);
+        }
+        // TODO: Integrate with error tracking service (e.g., Sentry)
+        // Sentry.captureException(err, { extra: { operation: 'fetchStatus', jobId } });
         setError('Failed to track job progress');
       }
     };
@@ -37,7 +45,11 @@ export function ActiveOrganizationCard({ jobId, onComplete }: ActiveOrganization
     fetchStatus();
     intervalId = setInterval(fetchStatus, 1000);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+      }
+    };
   }, [jobId, onComplete]);
 
   if (error) {
