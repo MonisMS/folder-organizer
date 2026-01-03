@@ -1,10 +1,18 @@
 {
   "name": "@file-manager/desktop",
   "version": "1.0.0",
-  "description": "Smart File Manager Desktop App",
+  "description": "FolderMage - Smart File Organizer for your computer",
   "main": "dist/main/index.js",
-  "author": "File Manager Team",
+  "author": {
+    "name": "FolderMage",
+    "email": "monissms12@gmail.com"
+  },
   "license": "MIT",
+  "homepage": "https://folder-organizer-frontend-k7r8.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MonisMS/folder-organizer.git"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",

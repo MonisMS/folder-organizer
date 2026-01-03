@@ -24,6 +24,7 @@ apps/frontend/build/
 # Desktop build outputs (Electron)
 apps/desktop/out/
 apps/desktop/dist/
+apps/desktop/release/
 
 # Shared package build output
 packages/shared/dist/

@@ -1,6 +1,9 @@
-appId: com.filemanager.desktop
-productName: File Manager
-copyright: Copyright © 2024 File Manager
+appId: com.foldermage.app
+productName: FolderMage
+copyright: Copyright © 2026 FolderMage
+
+# Skip code signing for development builds
+forceCodeSigning: false
 
 directories:
   buildResources: resources
@@ -21,6 +24,7 @@ win:
       arch: [x64]
   icon: resources/icon.ico
   artifactName: ${productName}-${version}-Windows-Setup.${ext}
+  signAndEditExecutable: false
 
 nsis:
   oneClick: false
@@ -29,7 +33,7 @@ nsis:
   deleteAppDataOnUninstall: false
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: File Manager
+  shortcutName: FolderMage
 
 # macOS Configuration
 mac:
@@ -59,14 +63,12 @@ linux:
   target:
     - target: AppImage
       arch: [x64]
-    - target: deb
-      arch: [x64]
   icon: resources/icons
   category: Utility
   artifactName: ${productName}-${version}-Linux-${arch}.${ext}
-  maintainer: filemanager@example.com
-  vendor: File Manager Team
-  synopsis: Smart File Manager Desktop Application
+  maintainer: monissms12@gmail.com
+  vendor: FolderMage
+  synopsis: Smart File Organizer Desktop Application
   description: |
     A powerful desktop application for organizing, managing, 
     and detecting duplicate files on your computer.
@@ -86,8 +88,8 @@ appImage:
 # Auto-update configuration
 publish:
   provider: github
-  owner: your-username
-  repo: file-manager
+  owner: MonisMS
+  repo: folder-organizer
   releaseType: release
 
 # Code signing (configure for production)
