@@ -25,8 +25,9 @@ import { startAllSchedules, stopAllSchedules } from './services/scheduleManager'
 // Configuration
 // ============================================
 
-// Frontend URL - Next.js runs on port 3001 in development
-const DEV_RENDERER_URL = 'http://localhost:3001';
+// Frontend URLs
+const DEV_RENDERER_URL = 'http://localhost:3001'; // Next.js in development
+const PROD_RENDERER_URL = 'https://folder-organizer-frontend-k7r8.vercel.app/dashboard'; // Deployed frontend - dashboard
 
 // Configure logging
 log.transports.file.level = 'info';
@@ -76,12 +77,13 @@ function createWindow(): void {
 
   // Load the renderer
   if (is.dev) {
-    // In development, load the Next.js frontend
+    // In development, load the local Next.js frontend
     log.info(`Loading renderer from: ${DEV_RENDERER_URL}`);
     mainWindow.loadURL(DEV_RENDERER_URL);
   } else {
-    // In production, load the bundled static files
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
+    // In production, load the deployed web app
+    log.info(`Loading renderer from: ${PROD_RENDERER_URL}`);
+    mainWindow.loadURL(PROD_RENDERER_URL);
   }
 
   // Open DevTools in development
