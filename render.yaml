@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: file-manager-backend
+    runtime: node
+    buildCommand: pnpm install && pnpm build:shared && pnpm build:backend
+    startCommand: cd apps/backend && pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
