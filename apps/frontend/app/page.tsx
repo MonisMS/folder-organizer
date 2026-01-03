@@ -17,7 +17,7 @@ export default function LandingPage() {
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="text-center md:text-left">
               <p className="text-sm text-muted-foreground">
-                © 2024 FolderMage. Free & Open Source under MIT License.
+                © 2026 FolderMage. Free & Open Source under MIT License.
               </p>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
