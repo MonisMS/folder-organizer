@@ -3,10 +3,10 @@ export const schedules = {
 autoOrganizeDownloads :{
     pattern: '0 2 * * *',
     enabled: false, // Disabled - users must manually trigger organization
-    timezone: 'Asia/Kolkata',
+    timezone: process.env.TZ || 'UTC',
     config:{
-        sourcePath: 'C:\\Users\\Monis\\Downloads', // Update to your actual path
-      targetPath: 'C:\\OrganizedFiles',
+        sourcePath: process.env.DEFAULT_SOURCE_PATH || '',
+      targetPath: process.env.DEFAULT_TARGET_PATH || '',
     },
 },
 
@@ -14,9 +14,9 @@ autoOrganizeDownloads :{
 weeklyDuplicateScan:{
     pattern: '0 3 * * 0',
     enabled: false, // Disabled - users must manually trigger
-    timezone: 'Asia/Kolkata',
+    timezone: process.env.TZ || 'UTC',
     config:{
-        sourcePath: 'C:\\OrganizedFiles',
+        sourcePath: process.env.DEFAULT_SOURCE_PATH || '',
     },
 },
 
@@ -25,7 +25,7 @@ weeklyDuplicateScan:{
 dailyJobCleanup:{
     pattern: '0 0 * * *',
     enabled: false, // Disabled - users must manually trigger
-    timezone: 'Asia/Kolkata',
+    timezone: process.env.TZ || 'UTC',
     config:{
         daysToKeep: 7 // Keep jobs for 7 days
     },
@@ -36,10 +36,10 @@ dailyJobCleanup:{
   testSchedule: {
     pattern: '* * * * *',
     enabled: false, // Disabled after testing
-    timezone: 'Asia/Kolkata',
+    timezone: process.env.TZ || 'UTC',
     config: {
-      sourcePath: 'C:\\testfolder',
-      targetPath: 'C:\\OrganizedFiles',
+      sourcePath: process.env.DEFAULT_SOURCE_PATH || '',
+      targetPath: process.env.DEFAULT_TARGET_PATH || '',
     },
   },
 } as const;

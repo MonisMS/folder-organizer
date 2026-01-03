@@ -15,6 +15,13 @@
       "when": 1763624159002,
       "tag": "0001_zippy_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763624200000,
+      "tag": "0002_add_users_table",
+      "breakpoints": true
     }
   ]
 }

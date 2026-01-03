@@ -1,52 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { JobsList } from '@/components/jobs/JobsList';
 import { JobLogs } from '@/components/jobs/JobLogs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { listOrganizeJobs, listDuplicateJobs, cancelJob } from '@/lib/api/jobs';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { toast } from 'sonner';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import type { JobStatus } from '@/lib/api/jobs';
 
 export default function JobsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [electronStatus, setElectronStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
   const queryClient = useQueryClient();
-
-  // Check if Electron API is available
-  useEffect(() => {
-    const checkElectron = () => {
-      const api = (window as any).api;
-      if (api?.jobs) {
-        console.log('[Jobs Page] ✅ Electron API is available');
-        setElectronStatus('available');
-      } else {
-        console.log('[Jobs Page] ❌ Electron API NOT available. window.api =', api);
-        setElectronStatus('unavailable');
-      }
-    };
-    
-    // Check immediately and after a short delay (in case preload is slow)
-    checkElectron();
-    const timer = setTimeout(checkElectron, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   const { data: organizeJobs, isLoading: organizeLoading, error: organizeError, isError: isOrganizeError } = useQuery({
     queryKey: ['organize-jobs'],
     queryFn: async () => {
-      console.log('[Jobs Page] Fetching organize jobs...');
-      try {
-        const result = await listOrganizeJobs();
-        console.log('[Jobs Page] Organize jobs result:', result);
-        return result;
-      } catch (err) {
-        console.error('[Jobs Page] Failed to fetch organize jobs:', err);
-        throw err;
-      }
+      const result = await listOrganizeJobs();
+      return result;
     },
     refetchInterval: 5000,
     retry: false,
@@ -55,27 +28,12 @@ export default function JobsPage() {
   const { data: duplicateJobs, isLoading: duplicateLoading, error: duplicateError, isError: isDuplicateError } = useQuery({
     queryKey: ['duplicate-jobs'],
     queryFn: async () => {
-      console.log('[Jobs Page] Fetching duplicate jobs...');
-      try {
-        const result = await listDuplicateJobs();
-        console.log('[Jobs Page] Duplicate jobs result:', result);
-        return result;
-      } catch (err) {
-        console.error('[Jobs Page] Failed to fetch duplicate jobs:', err);
-        throw err;
-      }
+      const result = await listDuplicateJobs();
+      return result;
     },
     refetchInterval: 5000,
     retry: false,
   });
-
-  // Log errors for debugging
-  if (organizeError) {
-    console.error('Failed to load organize jobs:', organizeError);
-  }
-  if (duplicateError) {
-    console.error('Failed to load duplicate jobs:', duplicateError);
-  }
 
   const cancelMutation = useMutation({
     mutationFn: cancelJob,
@@ -84,7 +42,7 @@ export default function JobsPage() {
       queryClient.invalidateQueries({ queryKey: ['organize-jobs'] });
       queryClient.invalidateQueries({ queryKey: ['duplicate-jobs'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error & { response?: { data?: { error?: string } } }) => {
       const errorMsg = error.message || error.response?.data?.error || 'Failed to cancel job';
       toast.error(errorMsg);
     },
@@ -111,7 +69,7 @@ export default function JobsPage() {
 
   if (organizeLoading || duplicateLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-96 items-center justify-center">
         <LoadingSpinner size="lg" text="Loading jobs..." />
       </div>
     );
@@ -127,29 +85,6 @@ export default function JobsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Debug: Electron API Status */}
-      <div className={`p-3 rounded-lg text-sm flex items-center gap-2 ${
-        electronStatus === 'available' 
-          ? 'bg-green-50 text-green-700 border border-green-200' 
-          : electronStatus === 'unavailable'
-          ? 'bg-red-50 text-red-700 border border-red-200'
-          : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-      }`}>
-        {electronStatus === 'available' ? (
-          <>
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Desktop mode: Using Electron IPC for job management</span>
-          </>
-        ) : electronStatus === 'unavailable' ? (
-          <>
-            <AlertCircle className="h-4 w-4" />
-            <span>⚠️ Electron API not detected - jobs won&apos;t work in browser mode. Run the desktop app.</span>
-          </>
-        ) : (
-          <span>Checking Electron API...</span>
-        )}
-      </div>
-
       {/* Show errors if any */}
       {(isOrganizeError || isDuplicateError) && (
         <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">

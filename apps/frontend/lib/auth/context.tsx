@@ -21,8 +21,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_KEY = 'file_manager_token';
 const USER_KEY = 'file_manager_user';
 
-// Set to true to bypass authentication (for development)
-const BYPASS_AUTH = true;
+// Set to true to bypass authentication (for development only!)
+const BYPASS_AUTH = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthResponse['user'] | null>(null);

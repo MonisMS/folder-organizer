@@ -76,17 +76,19 @@ export function JobCard({ job, onCancel, onViewLogs }: JobCardProps) {
   const isActive = job.state === 'active' || job.state === 'waiting';
   const jobTypeInfo = getJobTypeInfo(job.name);
 
-  // Extract meaningful data from job.data
-  const sourcePath = job.data?.sourcePath;
-  const targetPath = job.data?.targetPath;
-  const scanPath = job.data?.path;
+  // Extract meaningful data from job.data with proper typing
+  const jobData = job.data as Record<string, string | undefined> | undefined;
+  const sourcePath = jobData?.sourcePath;
+  const targetPath = jobData?.targetPath;
+  const scanPath = jobData?.path;
 
-  // Extract result info
-  const resultInfo = job.result ? {
-    totalFiles: job.result.totalFiles,
-    movedFiles: job.result.movedFiles,
-    failedFiles: job.result.failedFiles,
-    duplicatesFound: job.result.duplicatesFound,
+  // Extract result info with proper typing
+  const jobResult = job.result as Record<string, number | undefined> | undefined;
+  const resultInfo = jobResult ? {
+    totalFiles: jobResult.totalFiles,
+    movedFiles: jobResult.movedFiles,
+    failedFiles: jobResult.failedFiles,
+    duplicatesFound: jobResult.duplicatesFound,
   } : null;
 
   return (

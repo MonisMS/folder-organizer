@@ -1,5 +1,21 @@
 
-import { integer, pgTable, text, timestamp, serial, index } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp, serial, index, varchar, boolean } from "drizzle-orm/pg-core";
+
+// Users table - authentication
+export const users = pgTable("users", {
+    id: serial('id').primaryKey(),
+    email: varchar('email', { length: 255 }).notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+    emailIdx: index('email_idx').on(table.email),
+}));
+
+// Type inference helpers for users
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 
 // Files table - tracks all scanned and organized files
 export const files = pgTable("files", {

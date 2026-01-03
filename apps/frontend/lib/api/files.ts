@@ -4,9 +4,8 @@ import type { FileInfo, ScanResult } from '@file-manager/shared';
 // Check if we're running in Electron (desktop app) - must check at runtime
 const getElectronFilesAPI = () => {
   if (typeof window !== 'undefined') {
-    const api = (window as any).api?.files;
+    const api = (window as unknown as { api?: { files?: unknown } }).api?.files;
     if (api) {
-      console.log('[Files API] ✅ Electron API detected');
       return api;
     }
   }
@@ -15,7 +14,7 @@ const getElectronFilesAPI = () => {
 
 const getElectronHistoryAPI = () => {
   if (typeof window !== 'undefined') {
-    const api = (window as any).api?.history;
+    const api = (window as unknown as { api?: { history?: unknown } }).api?.history;
     if (api) {
       return api;
     }
@@ -25,11 +24,9 @@ const getElectronHistoryAPI = () => {
 
 // Scan endpoint
 export const scanFiles = async (path: string, extension?: string, sortBy?: string) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { scan: (path: string) => Promise<ScanResult> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for scanFiles:', path);
     const result = await electronAPI.scan(path);
-    console.log('[Files API] scanFiles result:', result);
     return result;
   }
   const response = await apiClient.get<ScanResult>('/scan', {
@@ -40,9 +37,8 @@ export const scanFiles = async (path: string, extension?: string, sortBy?: strin
 
 // Classify files
 export const classifyFiles = async (path: string) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { classify: (path: string) => Promise<unknown> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for classifyFiles:', path);
     const result = await electronAPI.classify(path);
     return result;
   }
@@ -54,11 +50,9 @@ export const classifyFiles = async (path: string) => {
 
 // Organize files
 export const organizeFiles = async (sourcePath: string, targetPath: string) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { organize: (src: string, target: string) => Promise<unknown> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for organizeFiles:', sourcePath, targetPath);
     const result = await electronAPI.organize(sourcePath, targetPath);
-    console.log('[Files API] organizeFiles result:', result);
     return result;
   }
   const response = await apiClient.post('/api/files/organize', {
@@ -70,7 +64,7 @@ export const organizeFiles = async (sourcePath: string, targetPath: string) => {
 
 // Validate path
 export const validatePath = async (path: string) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { validatePath: (path: string) => Promise<unknown> } | null;
   if (electronAPI) {
     const result = await electronAPI.validatePath(path);
     return result;
@@ -81,11 +75,10 @@ export const validatePath = async (path: string) => {
 
 // Get all files
 export const getAllFiles = async (): Promise<FileInfo[]> => {
-  const electronAPI = getElectronHistoryAPI();
+  const electronAPI = getElectronHistoryAPI() as { getAllFiles: () => Promise<{ files?: FileInfo[] }> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for getAllFiles');
     const result = await electronAPI.getAllFiles();
-    return result.files || result || [];
+    return result.files || [];
   }
   const response = await apiClient.get<FileInfo[]>('/api/history/files');
   return response.data;
@@ -93,7 +86,7 @@ export const getAllFiles = async (): Promise<FileInfo[]> => {
 
 // Get file by ID
 export const getFileById = async (id: number) => {
-  const electronAPI = getElectronHistoryAPI();
+  const electronAPI = getElectronHistoryAPI() as { getFileById: (id: number) => Promise<{ file?: unknown }> } | null;
   if (electronAPI) {
     const result = await electronAPI.getFileById(id);
     return result.file || result;
@@ -104,9 +97,8 @@ export const getFileById = async (id: number) => {
 
 // Get recent operations
 export const getRecentOperations = async (limit = 10) => {
-  const electronAPI = getElectronHistoryAPI();
+  const electronAPI = getElectronHistoryAPI() as { getOperations: (limit: number) => Promise<{ operations?: unknown }> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for getRecentOperations');
     const result = await electronAPI.getOperations(limit);
     return result.operations || result;
   }
@@ -127,9 +119,8 @@ export interface UndoResult {
 }
 
 export const undoOrganization = async (options?: { since?: string; fileId?: number }) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { undo: (opts?: { since?: string; fileId?: number }) => Promise<UndoResult> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for undoOrganization');
     const result = await electronAPI.undo(options);
     return result;
   }
@@ -148,9 +139,8 @@ export interface UndoableFile {
 }
 
 export const getUndoableFiles = async (since?: string) => {
-  const electronAPI = getElectronFilesAPI();
+  const electronAPI = getElectronFilesAPI() as { getUndoable: (since?: string) => Promise<{ files: UndoableFile[]; count: number }> } | null;
   if (electronAPI) {
-    console.log('[Files API] Using Electron IPC for getUndoableFiles');
     const result = await electronAPI.getUndoable(since);
     return result;
   }

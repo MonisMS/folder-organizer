@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/hooks';
 import { Loader2 } from 'lucide-react';
 
-// Set to true to bypass authentication (for development)
-const BYPASS_AUTH = true;
+// Set to true to bypass authentication (for development only!)
+const BYPASS_AUTH = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
