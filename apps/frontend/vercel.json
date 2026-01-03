@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm build:shared && cd apps/frontend && pnpm build",
+  "buildCommand": "pnpm build:vercel",
   "installCommand": "cd ../.. && pnpm install",
   "outputDirectory": ".next",
   "headers": [

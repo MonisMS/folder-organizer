@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
+    "build:vercel": "cd ../../packages/shared && pnpm build && cd ../../apps/frontend && next build",
     "start": "next start -p 3001",
     "lint": "eslint"
   },
