@@ -90,8 +90,14 @@ function createWindow(): void {
   if (is.dev) {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   }
-}
 
+  // Allow opening DevTools in production with Ctrl+Shift+I
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+      mainWindow?.webContents.toggleDevTools();
+    }
+  });
+}
 // Register all IPC handlers
 function registerAllHandlers(): void {
   registerFileHandlers();
