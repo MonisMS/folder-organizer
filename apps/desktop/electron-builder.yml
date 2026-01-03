@@ -85,12 +85,13 @@ deb:
 appImage:
   license: MIT
 
-# Auto-update configuration
+# Auto-update configuration (used by electron-updater at runtime)
 publish:
   provider: github
   owner: MonisMS
   repo: folder-organizer
   releaseType: release
+  publishAutoUpdate: false
 
 # Code signing (configure for production)
 # afterSign: scripts/notarize.js
