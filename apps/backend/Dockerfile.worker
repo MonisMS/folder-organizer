@@ -1,0 +1,38 @@
+# Worker Dockerfile (same base, different CMD)
+FROM node:20-alpine AS base
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/shared/package.json ./packages/shared/
+COPY apps/backend/package.json ./apps/backend/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/shared ./packages/shared
+COPY apps/backend ./apps/backend
+COPY tsconfig.base.json ./
+
+RUN pnpm --filter @file-manager/shared build
+RUN pnpm --filter @file-manager/backend build
+
+FROM node:20-alpine AS production
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY --from=base /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=base /app/packages/shared/package.json ./packages/shared/
+COPY --from=base /app/packages/shared/dist ./packages/shared/dist
+COPY --from=base /app/apps/backend/package.json ./apps/backend/
+COPY --from=base /app/apps/backend/dist ./apps/backend/dist
+
+RUN pnpm install --frozen-lockfile --prod
+
+ENV NODE_ENV=production
+
+WORKDIR /app/apps/backend
+CMD ["node", "dist/workers/index.js"]

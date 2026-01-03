@@ -1,9 +1,17 @@
 import { apiClient } from './client';
 
+// Electron API type for schedules
+interface ElectronSchedulesAPI {
+  list: () => Promise<{ schedules?: Schedule[] } | Schedule[]>;
+  start: (name: string) => Promise<unknown>;
+  stop: (name: string) => Promise<unknown>;
+  trigger: (name: string) => Promise<unknown>;
+}
+
 // Check if we're running in Electron (desktop app) - must check at runtime
-const getElectronAPI = () => {
+const getElectronAPI = (): ElectronSchedulesAPI | null => {
   if (typeof window !== 'undefined') {
-    const api = (window as any).api?.schedules;
+    const api = (window as unknown as { api?: { schedules?: ElectronSchedulesAPI } }).api?.schedules;
     if (api) {
       return api;
     }
@@ -26,12 +34,15 @@ export interface ScheduleConfig {
   daysToKeep?: number;
 }
 
-export const getSchedules = async () => {
+export const getSchedules = async (): Promise<Schedule[]> => {
   const electronAPI = getElectronAPI();
   if (electronAPI) {
-    console.log('[Schedules API] Using Electron IPC for getSchedules');
     const result = await electronAPI.list();
-    return result.schedules || result;
+    // Handle both { schedules: [...] } and [...] response formats
+    if (Array.isArray(result)) {
+      return result;
+    }
+    return result.schedules || [];
   }
   const response = await apiClient.get<{ success: boolean; schedules: Schedule[] }>('/api/schedules');
   return response.data.schedules;

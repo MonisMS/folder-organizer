@@ -6,8 +6,11 @@ import { historyRoutes } from './routes/historyRoutes.js';
 import { duplicateRoutes } from './routes/duplicateRoutes.js';
 import { jobRoutes } from './routes/jobRoutes.js';
 import { scheduleRoutes } from './routes/scheduledRoutes.js';
+import { authRoutes } from './routes/authRoutes.js';
 import { logger } from './lib/logger.js';
 import { startAllSchedules, stopAllSchedules } from './services/scheduleManager.js';
+import { rateLimitPlugin, rateLimitPresets, createRateLimiter } from './middleware/rateLimit.js';
+import { redisConfig } from './config/redis.js';
 
 interface ScanQuery {
   path: string;
@@ -15,19 +18,36 @@ interface ScanQuery {
   sortBy?: string;
 }
 
+// Parse CORS origins from environment variable
+function getCorsOrigins(): (string | RegExp)[] {
+  const envOrigins = process.env.CORS_ORIGINS;
+  
+  if (envOrigins) {
+    return envOrigins.split(',').map(origin => origin.trim());
+  }
+  
+  // Default origins for development
+  if (process.env.NODE_ENV !== 'production') {
+    return [
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ];
+  }
+  
+  // Production: require explicit CORS_ORIGINS
+  logger.warn('CORS_ORIGINS not set in production, using restrictive default');
+  return [];
+}
+
 export async function buildApp() {
   try {
     const fastify = Fastify({
-      logger: true,
+      logger: process.env.NODE_ENV !== 'production',
     });
 
     // Register CORS
     await fastify.register(cors, {
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:3001',
-        /\.vercel\.app$/,
-      ],
+      origin: getCorsOrigins(),
       credentials: true,
     });
 
@@ -106,6 +126,7 @@ export async function buildApp() {
     await fastify.register(duplicateRoutes, { prefix: '/api/duplicates' });
     await fastify.register(jobRoutes, { prefix: '/api/jobs' });
     await fastify.register(scheduleRoutes, { prefix: '/api/schedules' });
+    await fastify.register(authRoutes, { prefix: '/api/auth' });
 
     // Start schedules
     try {
@@ -132,8 +153,39 @@ export async function buildApp() {
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
 
+    // Apply rate limiting to API routes
+    if (process.env.NODE_ENV === 'production') {
+      await fastify.register(rateLimitPlugin, rateLimitPresets.api);
+    }
+
+    // Health check endpoint with service status
     fastify.get('/health', async () => {
-      return { status: 'ok', timestamp: new Date().toISOString() };
+      const checks: Record<string, string> = {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+      };
+
+      // Check Redis connection
+      try {
+        const Redis = await import('ioredis');
+        const redis = new Redis.default(redisConfig);
+        await redis.ping();
+        await redis.quit();
+        checks.redis = 'connected';
+      } catch {
+        checks.redis = 'disconnected';
+      }
+
+      // Check database connection
+      try {
+        const { db } = await import('./db/index.js');
+        await db.execute('SELECT 1');
+        checks.database = 'connected';
+      } catch {
+        checks.database = 'disconnected';
+      }
+
+      return checks;
     });
 
     return fastify;

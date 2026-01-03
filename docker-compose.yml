@@ -10,6 +10,46 @@ services:
       - redis-data:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: file-manager-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3001}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile.worker
+    container_name: file-manager-worker
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   redis-data:
