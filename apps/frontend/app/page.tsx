@@ -17,17 +17,34 @@ export default function LandingPage() {
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="text-center md:text-left">
               <p className="text-sm text-muted-foreground">
-                © 2024 File Manager. Built with Next.js, Fastify, and TypeScript.
+                © 2024 FolderMage. Free & Open Source under MIT License.
               </p>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Tech Stack:</span>
-                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Next.js</span>
-                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Fastify</span>
-                <span className="rounded bg-primary/10 px-2 py-1 text-xs">PostgreSQL</span>
-                <span className="rounded bg-primary/10 px-2 py-1 text-xs">Redis</span>
-              </div>
+              <a 
+                href="https://github.com/MonisMS/folder-organizer" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                GitHub
+              </a>
+              <a 
+                href="https://github.com/MonisMS/folder-organizer/releases" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Releases
+              </a>
+              <a 
+                href="https://github.com/MonisMS/folder-organizer/issues" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Report Bug
+              </a>
             </div>
           </div>
         </div>

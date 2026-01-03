@@ -6,22 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Download as DownloadIcon, Monitor, Apple, Terminal, ExternalLink, Github } from 'lucide-react';
 
 const APP_VERSION = '1.0.0';
-const GITHUB_REPO = 'https://github.com/MonisMS/file-manager';
+const GITHUB_REPO = 'https://github.com/MonisMS/folder-organizer';
 
 const downloads = [
   {
     platform: 'Windows',
     icon: Monitor,
     description: 'Windows 10/11 (64-bit)',
-    filename: `File-Manager-${APP_VERSION}-Windows-Setup.exe`,
-    size: '~85 MB',
+    filename: `FolderMage-${APP_VERSION}-Windows-Setup.exe`,
+    size: '~92 MB',
     instructions: 'Download and run the installer',
   },
   {
     platform: 'macOS',
     icon: Apple,
     description: 'macOS 11+ (Intel & Apple Silicon)',
-    filename: `File-Manager-${APP_VERSION}-macOS-universal.dmg`,
+    filename: `FolderMage-${APP_VERSION}-macOS.dmg`,
     size: '~90 MB',
     instructions: 'Open DMG and drag to Applications',
   },
@@ -29,7 +29,7 @@ const downloads = [
     platform: 'Linux',
     icon: Terminal,
     description: 'AppImage (Most distributions)',
-    filename: `File-Manager-${APP_VERSION}-Linux-x64.AppImage`,
+    filename: `FolderMage-${APP_VERSION}.AppImage`,
     size: '~95 MB',
     instructions: 'Make executable and run',
   },

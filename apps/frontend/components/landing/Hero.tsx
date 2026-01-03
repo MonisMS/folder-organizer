@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, FolderOpen, Zap } from 'lucide-react';
+import { ArrowRight, FolderOpen, Zap, Download, Shield } from 'lucide-react';
 
 export function Hero() {
   return (
@@ -11,30 +11,31 @@ export function Hero() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-2 text-sm">
             <Zap className="h-4 w-4 text-primary" />
-            <span>Automated File Management System</span>
+            <span>Free & Open Source Desktop App</span>
           </div>
           
           <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            Organize Your Files
-            <span className="block text-primary">Automatically</span>
+            FolderMage
+            <span className="block text-primary">Smart File Organizer</span>
           </h1>
           
           <p className="mb-8 text-lg text-muted-foreground sm:text-xl md:text-2xl">
-            Intelligent file organization, duplicate detection, and scheduled automation.
-            Take control of your digital files with powerful, automated tools.
+            Automatically organize your local files, detect duplicates, and schedule cleanup tasks.
+            100% private — works completely offline on your computer.
           </p>
           
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Button asChild size="lg" className="text-lg">
-              <Link href="/auth/register">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              <a href="#download">
+                <Download className="mr-2 h-5 w-5" />
+                Download Free
+              </a>
             </Button>
             <Button asChild variant="outline" size="lg" className="text-lg">
-              <Link href="/auth/login">
-                Sign In
-              </Link>
+              <a href="https://github.com/MonisMS/folder-organizer" target="_blank" rel="noopener noreferrer">
+                View on GitHub
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </div>
           
@@ -47,6 +48,11 @@ export function Hero() {
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
               <span>Automated Tasks</span>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              <span>100% Private</span>
             </div>
           </div>
         </div>

@@ -2,8 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { Download, Github } from 'lucide-react';
 
 export function CTA() {
   return (
@@ -13,23 +12,24 @@ export function CTA() {
           <CardContent className="p-8 md:p-12">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-                Ready to Get Started?
+                Ready to Organize Your Files?
               </h2>
               <p className="mb-8 text-lg text-muted-foreground">
-                Join thousands of users who have organized their files with our powerful automation tools.
-                Start organizing your files today.
+                FolderMage is completely free and open source. Download now and take control
+                of your digital files with powerful automation tools.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 <Button asChild size="lg" className="text-lg">
-                  <Link href="/auth/register">
-                    Create Free Account
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
+                  <a href="#download">
+                    <Download className="mr-2 h-5 w-5" />
+                    Download FolderMage
+                  </a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="text-lg">
-                  <Link href="/auth/login">
-                    Sign In to Existing Account
-                  </Link>
+                  <a href="https://github.com/MonisMS/folder-organizer" target="_blank" rel="noopener noreferrer">
+                    <Github className="mr-2 h-5 w-5" />
+                    Star on GitHub
+                  </a>
                 </Button>
               </div>
             </div>

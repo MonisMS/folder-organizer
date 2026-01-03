@@ -7,7 +7,9 @@ import {
   Clock, 
   Search, 
   BarChart3, 
-  Shield 
+  Shield,
+  Wifi,
+  HardDrive
 } from 'lucide-react';
 
 const features = [
@@ -27,14 +29,14 @@ const features = [
     description: 'Set up automated tasks to organize files on a schedule. Daily, weekly, or custom intervals.',
   },
   {
-    icon: Search,
-    title: 'Advanced Search',
-    description: 'Quickly find files with powerful search and filter options. Search by type, date, size, and more.',
+    icon: Wifi,
+    title: 'Works Offline',
+    description: 'No internet required. FolderMage works completely offline on your local machine.',
   },
   {
-    icon: BarChart3,
-    title: 'Analytics & Insights',
-    description: 'Track your file organization with detailed statistics, charts, and operation history.',
+    icon: HardDrive,
+    title: 'Local Storage Only',
+    description: 'Your files never leave your computer. 100% private with no cloud uploads.',
   },
   {
     icon: Shield,
