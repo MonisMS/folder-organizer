@@ -20,6 +20,7 @@ import {
   History,
   Briefcase,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -61,22 +62,24 @@ export function SidebarNav() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-2 px-4 py-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <FolderOpen className="h-5 w-5" />
+      <SidebarHeader className="border-b border-sidebar-border/60 pb-0">
+        <div className="flex items-center gap-3 px-4 py-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-sm">
+            <Sparkles className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="font-semibold">File Manager</h2>
-            <p className="text-xs text-muted-foreground">v1.0.0</p>
+            <h2 className="text-sm font-semibold tracking-tight">FolderMage</h2>
+            <p className="text-[11px] text-muted-foreground">Smart file organizer</p>
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="pt-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -86,13 +89,20 @@ export function SidebarNav() {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        'w-full justify-start',
-                        isActive && 'bg-primary/10 text-primary'
+                        'group relative w-full justify-start rounded-lg px-3 py-2 nav-item-transition',
+                        isActive
+                          ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
+                          : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
                       )}
                     >
                       <Link href={item.href}>
-                        <Icon className="mr-2 h-4 w-4" />
-                        <span>{item.title}</span>
+                        <Icon
+                          className={cn(
+                            'mr-2.5 h-4 w-4 shrink-0',
+                            isActive ? 'text-primary-foreground' : 'text-sidebar-foreground/50 group-hover:text-sidebar-foreground'
+                          )}
+                        />
+                        <span className="font-medium">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -105,4 +115,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-

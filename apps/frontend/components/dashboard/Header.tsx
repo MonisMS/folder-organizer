@@ -7,30 +7,30 @@ import { usePathname } from 'next/navigation';
 
 export function Header() {
   const pathname = usePathname();
-  
+
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
     const breadcrumbs = [{ label: 'Home', href: '/' }];
-    
+
     if (segments[0] === 'dashboard') {
       breadcrumbs.push({ label: 'Dashboard', href: '/dashboard' });
-      
+
       if (segments.length > 1) {
-        const page = segments[1];
+        const page = segments[1]!;
         const pageLabel = page.charAt(0).toUpperCase() + page.slice(1);
         breadcrumbs.push({ label: pageLabel, href: `/dashboard/${page}` });
       }
     }
-    
+
     return breadcrumbs;
   };
 
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4">
-      <SidebarTrigger />
-      
+    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b border-border/60 bg-background/80 px-4 backdrop-blur-sm">
+      <SidebarTrigger className="transition-opacity duration-150 hover:opacity-70" />
+
       <Breadcrumb className="hidden md:flex">
         <BreadcrumbList>
           {breadcrumbs.map((crumb, index) => (
@@ -38,9 +38,14 @@ export function Header() {
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {index === breadcrumbs.length - 1 ? (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-medium">{crumb.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                  <BreadcrumbLink
+                    href={crumb.href}
+                    className="transition-colors duration-150 hover:text-foreground"
+                  >
+                    {crumb.label}
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
             </div>
@@ -54,4 +59,3 @@ export function Header() {
     </header>
   );
 }
-

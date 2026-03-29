@@ -106,22 +106,22 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 fade-in">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Organize and manage your files efficiently
         </p>
       </div>
 
-      <OrganizeFilesHero 
-        onPreview={handlePreview} 
-        isLoading={isPreviewLoading} 
+      <OrganizeFilesHero
+        onPreview={handlePreview}
+        isLoading={isPreviewLoading}
       />
 
       {previewData && (
-        <OrganizationPreview 
-          data={previewData} 
+        <OrganizationPreview
+          data={previewData}
           onOrganize={handleOrganize}
           onCancel={handleCancelPreview}
           isOrganizing={!!activeJobId}
@@ -129,21 +129,25 @@ export default function DashboardPage() {
       )}
 
       {activeJobId && (
-        <ActiveOrganizationCard 
-          jobId={activeJobId} 
-          onComplete={handleJobComplete} 
+        <ActiveOrganizationCard
+          jobId={activeJobId}
+          onComplete={handleJobComplete}
         />
       )}
 
       <UndoOrganizationCard onUndoComplete={handleUndoComplete} />
 
-      <div className="pt-4">
-        <h2 className="text-xl font-semibold mb-4">Overview</h2>
+      <div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Overview
+        </h2>
         <StatsCards stats={stats} isLoading={filesLoading || organizeJobsLoading} />
       </div>
 
-      <div className="pt-4">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+      <div>
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Recent Activity
+        </h2>
         <RecentActivity operations={operations || null} isLoading={operationsLoading} />
       </div>
     </div>
