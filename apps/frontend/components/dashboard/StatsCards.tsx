@@ -79,7 +79,7 @@ export function StatsCards({ stats, isLoading }: StatsCardsProps) {
         return (
           <Card
             key={item.title}
-            className="overflow-hidden card-hover cursor-default border-border/60"
+            className="overflow-hidden cursor-default border-border/60 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md"
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between">

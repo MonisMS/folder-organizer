@@ -89,7 +89,7 @@ export function SidebarNav() {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        'group relative w-full justify-start rounded-lg px-3 py-2 nav-item-transition',
+                        'group relative w-full justify-start rounded-lg px-3 py-2 transition-all duration-150 ease-out',
                         isActive
                           ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
                           : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground'
