@@ -42,7 +42,9 @@ describe('processOrganizeJob', () => {
   });
 
   it('returns correct counts when all files move successfully', async () => {
-    const files = [makeFileInfo('a.pdf', '.pdf'), makeFileInfo('b.jpg', '.jpg')];
+    const pdf = makeFileInfo('a.pdf', '.pdf');
+    const jpg = makeFileInfo('b.jpg', '.jpg');
+    const files = [pdf, jpg];
     vi.mocked(scanInfo).mockResolvedValue({
       files,
       totalFiles: 2,
@@ -51,8 +53,8 @@ describe('processOrganizeJob', () => {
     });
     vi.mocked(classifyFiles).mockReturnValue(
       new Map([
-        ['Documents', [files[0]]],
-        ['Images', [files[1]]],
+        ['Documents', [pdf]],
+        ['Images', [jpg]],
       ])
     );
     vi.mocked(moveFile).mockResolvedValue({
