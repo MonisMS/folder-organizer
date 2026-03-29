@@ -2,6 +2,9 @@ import cron, { ScheduledTask } from 'node-cron';
 import log from 'electron-log';
 import { schedules, type ScheduleName } from '../config/schedules';
 import { createJob } from '../queue/jobQueue';
+import { getDb } from '../db';
+import { jobs } from '../db/schema';
+import { lt } from 'drizzle-orm';
 
 // Active cron tasks registry
 const activeTasks = new Map<ScheduleName, ScheduledTask>();
@@ -38,10 +41,13 @@ const scheduleHandlers: Record<ScheduleName, () => Promise<void>> = {
   },
 
   dailyJobCleanup: async () => {
-    const config = schedules.dailyJobCleanup.config;
-    log.info({ config }, 'Running daily job cleanup');
-    // TODO: Implement job cleanup from SQLite
-    log.info('Job cleanup completed');
+    const { daysToKeep } = schedules.dailyJobCleanup.config;
+    const cutoff = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000);
+    log.info({ daysToKeep, cutoff }, 'Running daily job cleanup');
+
+    const db = getDb();
+    const result = await db.delete(jobs).where(lt(jobs.createdAt, cutoff));
+    log.info(`Job cleanup completed — removed jobs older than ${daysToKeep} days`);
   },
 
   testSchedule: async () => {

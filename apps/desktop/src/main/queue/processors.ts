@@ -188,8 +188,9 @@ registerProcessor('duplicate', async (
     }
 
     const totalDuplicates = duplicateGroups.reduce((sum, g) => sum + g.count - 1, 0);
+    // totalSize is sum of all copies — divide to get one copy's size, multiply by wasted copies
     const wastedSpace = duplicateGroups.reduce(
-      (sum, g) => sum + (g.totalSize / g.count) * (g.count - 1),
+      (sum, g) => sum + Math.floor(g.totalSize / g.count) * (g.count - 1),
       0
     );
 

@@ -73,6 +73,11 @@ const api = {
 
   // ============ EVENT LISTENERS ============
   on: {
+    jobActive: (callback: (data: { id: string }) => void) => {
+      const handler = (_: unknown, data: { id: string }) => callback(data);
+      ipcRenderer.on('job:active', handler);
+      return () => ipcRenderer.removeListener('job:active', handler);
+    },
     jobProgress: (callback: (data: { id: string; progress: number }) => void) => {
       const handler = (_: unknown, data: { id: string; progress: number }) => callback(data);
       ipcRenderer.on('job:progress', handler);
