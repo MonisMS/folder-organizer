@@ -24,7 +24,7 @@ weeklyDuplicateScan:{
 
 dailyJobCleanup:{
     pattern: '0 0 * * *',
-    enabled: false, // Disabled - users must manually trigger
+    enabled: true, // Runs every midnight — cleans up old completed/failed jobs
     timezone: process.env.TZ || 'UTC',
     config:{
         daysToKeep: 7 // Keep jobs for 7 days

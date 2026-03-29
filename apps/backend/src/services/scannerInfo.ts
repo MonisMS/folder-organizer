@@ -38,10 +38,11 @@ try {
                     
                 }
                 return fileInfo;
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Skip files that are in use, permission denied, or other access issues
-                if (error.code === 'EBUSY' || error.code === 'EPERM' || error.code === 'EACCES') {
-                    logger.debug({ fileName, error: error.code }, 'Skipping inaccessible file');
+                const code = (error as NodeJS.ErrnoException).code;
+                if (code === 'EBUSY' || code === 'EPERM' || code === 'EACCES') {
+                    logger.debug({ fileName, code }, 'Skipping inaccessible file');
                     return null;
                 }
                 throw error; // Re-throw unexpected errors

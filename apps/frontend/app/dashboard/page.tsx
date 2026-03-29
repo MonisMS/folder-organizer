@@ -13,6 +13,7 @@ import { listOrganizeJobs, listDuplicateJobs } from '@/lib/api/jobs';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { FileInfo } from '@file-manager/shared';
+import type { JobStatus } from '@/lib/api/jobs';
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
@@ -48,11 +49,11 @@ export default function DashboardPage() {
 
   const stats = {
     totalFiles: files?.length || 0,
-    duplicates: 0, 
-    activeJobs: allJobs.filter((job: any) => 
+    duplicates: 0,
+    activeJobs: allJobs.filter((job: JobStatus) =>
       job.state === 'active' || job.state === 'waiting'
     ).length,
-    schedules: 0, 
+    schedules: 0,
   };
 
   const handlePreview = async (source: string, target: string) => {

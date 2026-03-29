@@ -22,7 +22,7 @@ export default function FilesPage() {
 
     return files.filter((file) => {
       const fileName = file.name || '';
-      const filePath = file.path || (file as { currentPath?: string }).currentPath || '';
+      const filePath = file.path || file.currentPath || '';
       const fileExtension = file.extension || '';
       
       const matchesSearch =
@@ -31,7 +31,7 @@ export default function FilesPage() {
         filePath.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
-        categoryFilter === '' || categoryFilter === 'all' || fileExtension.toLowerCase() === categoryFilter.toLowerCase();
+        categoryFilter === '' || categoryFilter === 'all' || file.category?.toLowerCase() === categoryFilter.toLowerCase();
 
       const matchesExtension =
         extensionFilter === '' ||

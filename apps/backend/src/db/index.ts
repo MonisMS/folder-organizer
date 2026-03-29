@@ -10,14 +10,8 @@ if (!process.env.DATABASE_URL) {
   throw error;
 }
 
-let db: NeonHttpDatabase<typeof schema>;
-try {
-  const sql = neon(process.env.DATABASE_URL);
-  db = drizzle(sql, { schema });
-  logger.info('✅ Database connection initialized');
-} catch (error) {
-  logger.error({ error }, '❌ Failed to initialize database connection');
-  throw error;
-}
+const sql = neon(process.env.DATABASE_URL);
+const db: NeonHttpDatabase<typeof schema> = drizzle(sql, { schema });
+logger.info('✅ Database connection initialized');
 
 export { db };

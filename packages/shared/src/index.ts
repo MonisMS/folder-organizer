@@ -6,6 +6,9 @@ export interface FileInfo {
     extension: string;
     createdAt: Date;
     modifiedAt: Date;
+    // Present on stored DB files (from /api/history/files)
+    category?: string;
+    currentPath?: string;
 }
 
 export interface ScanResult {

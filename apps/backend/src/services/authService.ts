@@ -68,7 +68,9 @@ export function generateToken(userId: number, email: string): string {
     exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 7 days
   })).toString('base64url');
   
-  const secret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is required');
+
   const signature = createHash('sha256')
     .update(`${header}.${payload}.${secret}`)
     .digest('base64url');
@@ -90,7 +92,8 @@ export function verifyToken(token: string): { sub: string; email: string; exp: n
       return null;
     }
     
-    const secret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return null; // Can't verify without secret
     const expectedSignature = createHash('sha256')
       .update(`${header}.${payload}.${secret}`)
       .digest('base64url');

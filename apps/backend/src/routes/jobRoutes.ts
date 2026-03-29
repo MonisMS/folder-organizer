@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import type { Job } from 'bullmq';
 import { duplicateCheckQueue, organizeQueue } from '../queues/fileQueue.js';
 import { logger } from '../lib/logger.js';
 
@@ -108,7 +109,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
       ]);
       
       const jobList = await Promise.all(
-        jobs.map(async (job: any) => ({
+        jobs.map(async (job: Job) => ({
           id: job.id,
           name: job.name,
           state: await job.getState(),
@@ -220,8 +221,9 @@ export async function jobRoutes(fastify: FastifyInstance) {
         });
       }
 
-      // Get logs from BullMQ
-      const logs = await organizeQueue.getJobLogs(id, 0, -1);
+      // Get logs from the correct queue (not always organizeQueue)
+      const queue = queueName === 'organize' ? organizeQueue : duplicateCheckQueue;
+      const logs = await queue.getJobLogs(id, 0, -1);
 
       return {
         success: true,
